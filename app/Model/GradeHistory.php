@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property integer debit
  * @property integer credit
  */
-class Grade_history extends Model
+class GradeHistory extends Model
 {
   use SoftDeletes;
 

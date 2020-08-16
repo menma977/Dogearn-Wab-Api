@@ -21,6 +21,7 @@ use Laravel\Passport\HasApiTokens;
  * @property string account_cookie
  * @property string wallet
  * @property integer level
+ * @property integer status
  */
 class User extends Authenticatable
 {

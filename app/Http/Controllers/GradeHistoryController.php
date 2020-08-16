@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Model\Grade_history;
+use App\Model\GradeHistory;
 use Illuminate\Http\Request;
 
 class GradeHistoryController extends Controller
@@ -41,10 +41,10 @@ class GradeHistoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Model\Grade_history  $grade_history
+     * @param  \App\Model\GradeHistory  $grade_history
      * @return \Illuminate\Http\Response
      */
-    public function show(Grade_history $grade_history)
+    public function show(GradeHistory $grade_history)
     {
         //
     }
@@ -52,10 +52,10 @@ class GradeHistoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Model\Grade_history  $grade_history
+     * @param  \App\Model\GradeHistory  $grade_history
      * @return \Illuminate\Http\Response
      */
-    public function edit(Grade_history $grade_history)
+    public function edit(GradeHistory $grade_history)
     {
         //
     }
@@ -64,10 +64,10 @@ class GradeHistoryController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Model\Grade_history  $grade_history
+     * @param  \App\Model\GradeHistory  $grade_history
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Grade_history $grade_history)
+    public function update(Request $request, GradeHistory $grade_history)
     {
         //
     }
@@ -75,10 +75,10 @@ class GradeHistoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Model\Grade_history  $grade_history
+     * @param  \App\Model\GradeHistory  $grade_history
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Grade_history $grade_history)
+    public function destroy(GradeHistory $grade_history)
     {
         //
     }
