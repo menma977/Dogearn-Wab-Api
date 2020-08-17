@@ -15,7 +15,7 @@ class CreatePinLedgersTable extends Migration
   {
     Schema::create('pin_ledgers', function (Blueprint $table) {
       $table->id();
-      $table->integer('id_user');
+      $table->integer('user_id');
       $table->text('description');
       $table->integer('debit');
       $table->integer('credit');

@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
   {
     $schedule->command('daily:deleteWithdrawQueuesIfDone')->daily();
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute();
+    $schedule->command('minute:reRegisterUserToDoge')->everyMinute();
   }
 
   /**

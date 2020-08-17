@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Model\Binary;
 use App\Model\Grade;
 use App\Model\GradeHistory;
@@ -11,23 +12,12 @@ use App\Model\WithdrawQueue;
 use App\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use Illuminate\Validation\ValidationException;
 
 class GradeHistoryController extends Controller
 {
-  /**
-   * Display a listing of the resource.
-   *
-   * @return Response
-   */
-  public function index()
-  {
-    //
-  }
-
   /**
    * Show the form for creating a new resource.
    *
@@ -38,7 +28,7 @@ class GradeHistoryController extends Controller
     $gradeList = Grade::all();
 
     $data = [
-      'grades' => $gradeList
+      'grades' => $gradeList,
     ];
 
     return response()->json($data, 200);
@@ -60,11 +50,11 @@ class GradeHistoryController extends Controller
     $user = User::find(Auth::user()->id);
     $gradeHistoryList = GradeHistory::where('user_id', $user->id)->get();
 
-    $getGradeList = Grade::find($request->gade);
+    $getGradeById = Grade::find($request->grade);
 
     $grade = new GradeHistory();
     $grade->user_id = Auth::user()->id;
-    $grade->debit = $getGradeList->price;
+    $grade->debit = $getGradeById->price;
     $grade->credit = 0;
     if ($gradeHistoryList->count()) {
       $grade->upgrade_level = $gradeHistoryList->first()->upgrade_level + 1;
@@ -74,22 +64,22 @@ class GradeHistoryController extends Controller
 
     $pinLedger = new PinLedger();
     $pinLedger->user_id = Auth::user()->id;
-    $pinLedger->debit = $getGradeList->pin;
+    $pinLedger->debit = $getGradeById->pin;
     $pinLedger->credit = 0;
-    $pinLedger->description = Auth::user()->phone + " add pin : " + $getGradeList->pin;
+    $pinLedger->description = Auth::user()->phone . " add pin : " . $getGradeById->pin;
 
     $level = Level::all();
 
     $sponsor = User::find(Binary::where('down_line', Auth::user()->id)->first()->sponsor);
-    $totalValue = $getGradeList->price;
+    $totalValue = $getGradeById->price;
     foreach ($level as $id => $item) {
       try {
         $withdrawQueue = new WithdrawQueue();
         $withdrawQueue->user_id = Auth::user()->id;
         $withdrawQueue->status = 0;
         $withdrawQueue->send_to = $sponsor->id;
-        if ($sponsor->level >= $getGradeList->id) {
-          $withdrawQueue->send_value = $getGradeList->price * $item->percent / 100;
+        if ($sponsor->level >= $getGradeById->id) {
+          $withdrawQueue->send_value = $getGradeById->price * $item->percent / 100;
         } else {
           $sponsorGrade = Grade::find($sponsor->level);
           $withdrawQueue->send_value = $sponsorGrade->price * $item->percent / 100;
@@ -104,6 +94,19 @@ class GradeHistoryController extends Controller
       }
     }
 
+    $withdrawQueue = new WithdrawQueue();
+    $withdrawQueue->user_id = Auth::user()->id;
+    $withdrawQueue->status = 0;
+    $withdrawQueue->send_to = User::find(1)->id;
+    if ($sponsor->level >= $getGradeById->id) {
+      $withdrawQueue->send_value = $totalValue;
+    } else {
+      $withdrawQueue->send_value = $totalValue;
+    }
+    $withdrawQueue->total = 0;
+
+    $withdrawQueue->save();
+
     $grade->save();
     $pinLedger->save();
 
@@ -112,50 +115,5 @@ class GradeHistoryController extends Controller
     ];
 
     return response()->json($data, 200);
-  }
-
-  /**
-   * Display the specified resource.
-   *
-   * @param GradeHistory $grade_history
-   * @return Response
-   */
-  public function show(GradeHistory $grade_history)
-  {
-    //
-  }
-
-  /**
-   * Show the form for editing the specified resource.
-   *
-   * @param GradeHistory $grade_history
-   * @return Response
-   */
-  public function edit(GradeHistory $grade_history)
-  {
-    //
-  }
-
-  /**
-   * Update the specified resource in storage.
-   *
-   * @param Request $request
-   * @param GradeHistory $grade_history
-   * @return Response
-   */
-  public function update(Request $request, GradeHistory $grade_history)
-  {
-    //
-  }
-
-  /**
-   * Remove the specified resource from storage.
-   *
-   * @param GradeHistory $grade_history
-   * @return Response
-   */
-  public function destroy(GradeHistory $grade_history)
-  {
-    //
   }
 }

@@ -13,9 +13,9 @@ use Laravel\Passport\HasApiTokens;
  * @property integer role
  * @property string phone
  * @property string email
- * @property string username
  * @property string password
  * @property string password_junk
+ * @property string transaction_password
  * @property string username_doge
  * @property string password_doge
  * @property string account_cookie
@@ -36,9 +36,9 @@ class User extends Authenticatable
     'role',
     'phone',
     'email',
-    'username',
     'password',
     'password_junk',
+    'transaction_password',
     'username_doge',
     'password_doge',
     'account_cookie',

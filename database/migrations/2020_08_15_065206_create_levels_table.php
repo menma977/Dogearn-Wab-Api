@@ -17,6 +17,7 @@ class CreateLevelsTable extends Migration
       $table->id();
       $table->float('percent');
       $table->timestamps();
+      $table->softDeletes();
     });
   }
 

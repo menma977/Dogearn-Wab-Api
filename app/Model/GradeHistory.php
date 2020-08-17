@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property integer user_id
  * @property integer debit
  * @property integer credit
+ * @property integer upgrade_level
  */
 class GradeHistory extends Model
 {
@@ -25,5 +26,6 @@ class GradeHistory extends Model
     'user_id',
     'debit',
     'credit',
+    'upgrade_level',
   ];
 }

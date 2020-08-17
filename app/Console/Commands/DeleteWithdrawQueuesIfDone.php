@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Model\WithdrawQueue;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class DeleteWithdrawQueuesIfDone extends Command
 {
@@ -39,5 +40,6 @@ class DeleteWithdrawQueuesIfDone extends Command
   public function handle()
   {
     WithdrawQueue::where('status', 1)->delete();
+    Log::info('Delete Queue');
   }
 }
