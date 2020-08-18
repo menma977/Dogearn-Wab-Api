@@ -133,7 +133,7 @@
                     style="border-top:0 solid transparent; border-left:0 solid transparent; border-bottom:0 solid transparent; border-right:0 solid transparent; padding: 30px 0;">
                   <div align="center" class="img-container center autowidth" style="padding-right: 0;padding-left: 0;">
                     <img alt="I'm an image" border="0" class="center autowidth"
-                         src="{{ url('https://upload.wikimedia.org/wikipedia/en/thumb/e/ed/Nyan_cat_250px_frame.PNG/220px-Nyan_cat_250px_frame.PNG') }}"
+                         src="{{ url('https://dogearn.net/images/Logo.png') }}"
                          style="text-decoration: none; -ms-interpolation-mode: bicubic; height: auto; border: 0; width: 100%; max-width: 154px; display: block;"
                          title="I'm an image" width="154"/>
                   </div>

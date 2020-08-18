@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,6 +17,7 @@ header('Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Conte
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
 
 Route::post('login', 'Api\UserController@login');
+Route::post('get/data', 'Api\UserController@getData');
 Route::post('/store', 'Api\UserController@store')->name('store');
 
 Route::middleware('auth:api')->group(function () {

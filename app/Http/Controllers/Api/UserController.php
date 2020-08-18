@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Model\Binary;
+use App\Model\Treding;
 use App\Model\WithdrawQueue;
 use App\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +20,30 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+  /**
+   * get Data
+   */
+  public function getData()
+  {
+    if (Auth::check()) {
+      $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
+
+      $data = [
+        'isLogin' => Auth::check(),
+        'version' => '0.1',
+        'isUserWin' => $isUserWinPlayingBot,
+      ];
+    } else {
+      $data = [
+        'isLogin' => Auth::check(),
+        'version' => '0.1',
+        'isUserWin' => '0',
+      ];
+    }
+
+    return response()->json($data, 200);
+  }
+
   /**
    * @param Request $request
    * @return JsonResponse
