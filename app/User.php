@@ -56,7 +56,7 @@ class User extends Authenticatable
     'password_junk',
     'username_doge',
     'password_doge',
-    'wallet',
+    'transaction_password',
     'remember_token',
   ];
 

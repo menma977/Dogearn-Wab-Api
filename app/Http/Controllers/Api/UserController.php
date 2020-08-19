@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Model\Binary;
+use App\Model\Grade;
+use App\Model\GradeHistory;
+use App\Model\PinLedger;
 use App\Model\Treding;
 use App\Model\WithdrawQueue;
 use App\User;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -65,30 +67,33 @@ class UserController extends Controller
     ]);
     $type = filter_var($request->phone, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
     if (Auth::attempt([$type => request('phone'), 'password' => request('password')])) {
-      $user = Auth::user();
-      if (($user !== null) && $user->suspand === 1 && !$user->wallet) {
-        $data = [
-          'message' => 'The given data was invalid.',
-          'errors' => [
-            'validation' => ['Your account has been suspended.'],
-          ],
-        ];
-        return response()->json($data, 500);
+      if (!Auth::user()->tokens->count()) {
+        $user = Auth::user();
+        if (($user !== null) && $user->suspand === 1 && !$user->wallet) {
+          $data = [
+            'message' => 'The given data was invalid.',
+            'errors' => [
+              'validation' => ['Your account has been suspended.'],
+            ],
+          ];
+          return response()->json($data, 500);
+        }
+
+        $user->token = $user->createToken('Android')->accessToken;
+        return response()->json([
+          'token' => $user->token,
+          'wallet' => $user->wallet,
+          'account_cookie' => $user->account_cookie,
+          'phone' => $user->phone,
+          'username' => $user->username_doge,
+          'password' => $user->password_doge
+        ], 200);
       }
 
-      $token = Auth::user()->tokens;
-      foreach ($token as $key => $value) {
-        $value->delete();
-      }
-      $user->token = $user->createToken('Android')->accessToken;
-      return response()->json([
-        'token' => $user->token,
-        'wallet' => $user->wallet,
-        'account_cookie' => $user->account_cookie,
-        'phone' => $user->phone,
-        'username' => $user->username_doge,
-        'password' => $user->password_doge
-      ], 200);
+      $data = [
+        'message' => 'you are already logged in on another cellphone, please log out first.',
+      ];
+      return response()->json($data, 500);
     }
 
     $data = [
@@ -101,6 +106,21 @@ class UserController extends Controller
   }
 
   /**
+   * logout
+   * @return JsonResponse
+   */
+  public function logout(): JsonResponse
+  {
+    $token = Auth::user()->tokens;
+    foreach ($token as $key => $value) {
+      $value->delete();
+    }
+    return response()->json([
+      'response' => 'Successfully logged out',
+    ], 200);
+  }
+
+  /**
    * Store a newly created resource in storage.
    *
    * @param Request $request
@@ -109,8 +129,9 @@ class UserController extends Controller
    */
   public function store(Request $request)
   {
+    $type = filter_var($request->sponsor, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
     $this->validate($request, [
-      'sponsor' => 'required|string|exists:users,phone',
+      'sponsor' => 'required|string|exists:users,' . $type,
       'email' => 'required|string|unique:users',
       'phone' => 'required|numeric|unique:users',
       'password' => 'required|string|min:6|confirmed',
@@ -125,6 +146,14 @@ class UserController extends Controller
 
     try {
       $user = new User();
+      $user->email = $request->email;
+      $user->password = Hash::make($request->password);
+      $user->password_junk = $request->password;
+      $user->transaction_password = Hash::make($request->transaction_password);
+      $user->phone = $request->phone;
+      $user->account_cookie = $responseCreateAccount->json()['AccountCookie'];
+      $user->wallet = $responseCreateAccount->json()['DepositAddress'];
+      $user->level = 0;
 
       $usernameDoge = $this->generateRandomString();
       $passwordDoge = $this->generateRandomString();
@@ -146,16 +175,28 @@ class UserController extends Controller
             $data = [
               'message' => 'Your Register Is Success',
             ];
+            $dataEmail = [
+              'subject' => 'Your registration process has been completed',
+              'massage' => 'Hallo ' . $user->email . ' <br>you been registered correctly and can login to the application <br> with password : ' . $user->password_junk . ' <br> password transaction : ' . $request->transaction_password
+            ];
           } else {
             $user->status = 1;
             $data = [
               'message' => 'You have registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration',
+            ];
+            $dataEmail = [
+              'subject' => 'Your registration process has been completed',
+              'massage' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password
             ];
           }
         } catch (Exception $e) {
           $user->status = 1;
           $data = [
             'message' => 'You have registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration',
+          ];
+          $dataEmail = [
+            'subject' => 'Your registration process has been completed',
+            'massage' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password
           ];
         }
       } else {
@@ -165,24 +206,26 @@ class UserController extends Controller
             'connection' => ['connection is lost when try register data.'],
           ],
         ];
+        $dataEmail = [
+          'subject' => 'Your registration process has been completed',
+          'massage' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password
+        ];
       }
 
-      $user->email = $request->email;
-      $user->password = Hash::make($request->password);
-      $user->password_junk = $request->password;
-      $user->transaction_password = Hash::make($request->transaction_password);
-      $user->phone = $request->phone;
-      $user->account_cookie = $responseCreateAccount->json()['AccountCookie'];
-      $user->wallet = $responseCreateAccount->json()['DepositAddress'];
-      $user->level = 1;
       $user->save();
 
-      $sponsor = User::where('phone', $request->sponsor)->first();
+      $sponsor = User::where($type, $request->sponsor)->first();
 
       $binary = new Binary();
       $binary->sponsor = $sponsor->id;
       $binary->down_line = $user->id;
       $binary->save();
+
+
+      Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
+        $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
+        $message->from('admin@dogearn.com', 'DOGEARN');
+      });
 
       return response()->json($data, 200);
     } catch (Exception $e) {
@@ -199,11 +242,23 @@ class UserController extends Controller
   /**
    * Display the specified resource.
    *
-   * @return Authenticatable
+   * @return JsonResponse
    */
   public function show()
   {
-    return Auth::user();
+    $grade = Auth::user()->level > 0 ? Grade::find(Auth::user()->level) : null;
+    $progressGrade = GradeHistory::where('user_id', Auth::user())->sum("debit") - GradeHistory::where('user_id', Auth::user())->sum("credit");
+    $pin = PinLedger::where('user_id', Auth::user()->id)->sum('debit') - PinLedger::where('user_id', Auth::user()->id)->sum('credit');
+    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
+
+    $data = [
+      'user' => Auth::user(),
+      'grade' => $grade,
+      'progressGrade' => $progressGrade,
+      'pin' => $pin,
+      'isUserWin' => $isUserWinPlayingBot
+    ];
+    return response()->json($data, 200);
   }
 
   /**
