@@ -17,10 +17,11 @@ header('Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Conte
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
 
 Route::post('login', 'Api\UserController@login');
-Route::get('get/data', 'Api\UserController@getData');
+Route::get('get/data', 'Api\UserController@getDataNotLogin');
 Route::post('/store', 'Api\UserController@store')->name('store');
 
 Route::middleware('auth:api')->group(function () {
+  Route::get('get/data/login', 'Api\UserController@getDataLogin');
 
   Route::group(['prefix' => 'user', 'as' => 'user.'], static function () {
     Route::get('/show', 'Api\UserController@show')->name('show');

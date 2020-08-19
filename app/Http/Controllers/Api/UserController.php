@@ -20,26 +20,34 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
+  protected $androidVersion = 1;
+
   /**
    * get Data
    */
-  public function getData()
+  public function getDataNotLogin()
   {
-    if (Auth::check()) {
-      $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
+    $data = [
+      'isLogin' => Auth::check(),
+      'version' => $this->androidVersion,
+      'isUserWin' => '0',
+    ];
 
-      $data = [
-        'isLogin' => Auth::check(),
-        'version' => '0.1',
-        'isUserWin' => $isUserWinPlayingBot,
-      ];
-    } else {
-      $data = [
-        'isLogin' => Auth::check(),
-        'version' => '0.1',
-        'isUserWin' => '0',
-      ];
-    }
+    return response()->json($data, 200);
+  }
+
+  /**
+   * get Data
+   */
+  public function getDataLogin()
+  {
+    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
+
+    $data = [
+      'isLogin' => Auth::check(),
+      'version' => $this->androidVersion,
+      'isUserWin' => $isUserWinPlayingBot,
+    ];
 
     return response()->json($data, 200);
   }
@@ -58,7 +66,7 @@ class UserController extends Controller
     $type = filter_var($request->phone, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
     if (Auth::attempt([$type => request('phone'), 'password' => request('password')])) {
       $user = Auth::user();
-      if (($user !== null) && $user->suspand === 1) {
+      if (($user !== null) && $user->suspand === 1 && !$user->wallet) {
         $data = [
           'message' => 'The given data was invalid.',
           'errors' => [
@@ -75,7 +83,11 @@ class UserController extends Controller
       $user->token = $user->createToken('Android')->accessToken;
       return response()->json([
         'token' => $user->token,
+        'wallet' => $user->wallet,
         'account_cookie' => $user->account_cookie,
+        'phone' => $user->phone,
+        'username' => $user->username_doge,
+        'password' => $user->password_doge
       ], 200);
     }
 
