@@ -43,48 +43,43 @@ class ReRegisterUserToDoge extends Command
    */
   public function handle()
   {
-    $user = User::where('status', 1)->first();
-    if ($user) {
-      $responseBeginSession = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
-        'a' => 'BeginSession',
-        'Key' => '1b4755ced78e4d91bce9128b9a053cad',
-        'AccountCookie' => $user->account_cookie,
-      ]);
-      if ($responseBeginSession->successful()) {
-        $usernameDoge = $this->generateRandomString();
-        $passwordDoge = $this->generateRandomString();
-        $responseCreateUser = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
-          'a' => 'CreateUser',
-          's' => $responseBeginSession->json()['SessionCookie'],
-          'Username' => $usernameDoge,
-          'Password' => $passwordDoge,
+    try {
+      $user = User::where('status', 1)->first();
+      if ($user) {
+        $responseBeginSession = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+          'a' => 'BeginSession',
+          'Key' => '1b4755ced78e4d91bce9128b9a053cad',
+          'AccountCookie' => $user->account_cookie,
         ]);
+        if ($responseBeginSession->successful()) {
+          $usernameDoge = $this->generateRandomString();
+          $passwordDoge = $this->generateRandomString();
+          $responseCreateUser = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+            'a' => 'CreateUser',
+            's' => $responseBeginSession->json()['SessionCookie'],
+            'Username' => $usernameDoge,
+            'Password' => $passwordDoge,
+          ]);
 
-        if ($responseCreateUser->successful()) {
-          try {
-            if ($responseCreateUser->json()['success'] === 1) {
-              $user->username_doge = $usernameDoge;
-              $user->password_doge = $passwordDoge;
-              $user->status = 0;
-              $user->save();
+          if ($responseCreateUser->successful() && $responseCreateUser->json()['success'] === 1) {
+            $user->username_doge = $usernameDoge;
+            $user->password_doge = $passwordDoge;
+            $user->status = 0;
+            $user->save();
 
-              $data = [
-                'subject' => 'Your registration process has been completed',
-                'massage' => 'Hallo '.$user->email.' has been registered correctly and can login to the application'
-              ];
-              Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
-                $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
-                $message->from('admin@dogearn.com', 'DOGEARN');
-              });
-            }
-            Log::info('re-registry is normal');
-          } catch (Exception $e) {
-            Log::info($e->getMessage());
+            $data = [
+              'subject' => 'Your registration process has been completed',
+              'massage' => 'Hallo ' . $user->email . ' has been registered correctly and can login to the application'
+            ];
+            Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
+              $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
+              $message->from('admin@dogearn.com', 'DOGEARN');
+            });
           }
         }
       }
-    } else {
-      Log::info('no user is re-registered');
+    } catch (Exception $e) {
+      Log::info($e->getMessage());
     }
   }
 

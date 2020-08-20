@@ -3,8 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Model\DogeHistory;
+use App\Model\GradeHistory;
 use App\Model\WithdrawQueue;
 use App\User;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -42,49 +44,55 @@ class SendBalanceFromWithdrawQueue extends Command
    */
   public function handle()
   {
-    $data = WithdrawQueue::where('status', 0)->first();
-    if ($data) {
-      $data->user = User::find($data->user_id);
-      $data->sendToUser = User::find($data->send_to);
+    try {
+      $data = WithdrawQueue::where('status', 0)->first();
+      if ($data) {
+        $user = User::find($data->user_id);
+        $sendToUser = User::find($data->send_to);
 
-      $responseGetSession = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
-        'a' => 'Login',
-        'Key' => '1b4755ced78e4d91bce9128b9a053cad',
-        'username' => $data->user->username_doge,
-        'password' => $data->user->password_doge,
-        'Totp' => ''
-      ]);
-
-      if ($responseGetSession->successful() && str_contains($responseGetSession->body(), 'InvalidApiKey') === false && str_contains($responseGetSession->body(), 'LoginInvalid') === false) {
-        $dataGetSession = $responseGetSession->json();
-        $response = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
-          'a' => 'Withdraw',
-          's' => $dataGetSession["SessionCookie"],
-          'Amount' => $data->send_value,
-          'Address' => $data->sendToUser->wallet,
-          'Totp ' => '',
-          'Currency' => 'doge',
+        $responseGetSession = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+          'a' => 'Login',
+          'Key' => '1b4755ced78e4d91bce9128b9a053cad',
+          'username' => $user->username_doge,
+          'password' => $user->password_doge,
+          'Totp' => ''
         ]);
 
-        if ($response->successful() && str_contains($response->body(), 'TooSmall') === false && str_contains($response->body(), 'InsufficientFunds') === false) {
-          $data->status = 1;
-          $data->save();
+        if ($responseGetSession->successful() && str_contains($responseGetSession->body(), 'InvalidApiKey') === false && str_contains($responseGetSession->body(), 'LoginInvalid') === false) {
+          $dataGetSession = $responseGetSession->json();
+          $response = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+            'a' => 'Withdraw',
+            's' => $dataGetSession["SessionCookie"],
+            'Amount' => $data->send_value,
+            'Address' => $sendToUser->wallet,
+            'Totp ' => '',
+            'Currency' => 'doge',
+          ]);
 
-          $dogeHistory = new DogeHistory();
-          $dogeHistory->user_id = $data->user->id;
-          $dogeHistory->send_to = $data->sendToUser->id;
-          $dogeHistory->total = $data->send_value;
-          $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to" . $data->sendToUser->email;
-          $dogeHistory->save();
+          if ($response->successful() && str_contains($response->body(), 'TooSmall') === false && str_contains($response->body(), 'InsufficientFunds') === false) {
+            $data->status = 1;
+            $data->save();
 
-          Log::info('delivery process success');
-        } else {
-          Log::info('failed to delivery balance');
-          Log::info($response->body());
+            $dogeHistory = new DogeHistory();
+            $dogeHistory->user_id = $user->id;
+            $dogeHistory->send_to = $sendToUser->id;
+            $dogeHistory->total = $data->send_value;
+            $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to" . $user->email;
+            $dogeHistory->save();
+
+            $grade = new GradeHistory();
+            $grade->user_id = $sendToUser->id;
+            $grade->debit = 0;
+            $grade->credit = $data->send_value;
+            $grade->upgrade_level = $sendToUser->level;
+            $grade->save();
+
+            Log::info('delivery process success');
+          }
         }
       }
-    } else {
-      Log::info('no delivery process');
+    } catch (Exception $e) {
+      Log::warning($e->getMessage() . " LINE : " . $e->getLine());
     }
   }
 }

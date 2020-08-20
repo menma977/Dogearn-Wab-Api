@@ -28,7 +28,6 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/edit', 'Api\UserController@edit')->name('edit');
     Route::post('/update', 'Api\UserController@update')->name('update');
     Route::post('/send/doge', 'Api\UserController@sendDoge')->name('sendDoge');
-    Route::get('/on/grade', 'Api\UserController@isUserGradeProcess')->name('isUserGradeProcess');
     Route::get('/logout', 'Api\UserController@logout')->name('logout');
   });
 

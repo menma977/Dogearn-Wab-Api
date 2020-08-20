@@ -135,8 +135,8 @@ class UserController extends Controller
       'email' => 'required|string|unique:users',
       'phone' => 'required|numeric|unique:users',
       'password' => 'required|string|min:6|confirmed',
-      'transaction_password' => 'required|string|min:6',
-      'transaction_password_confirmation' => 'required|string|same:transaction_password',
+      'transaction_password' => 'required|numeric|digits:4',
+      'transaction_password_confirmation' => 'required|numeric|same:transaction_password',
     ]);
 
     $responseCreateAccount = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
@@ -152,7 +152,17 @@ class UserController extends Controller
       $user->transaction_password = Hash::make($request->transaction_password);
       $user->phone = $request->phone;
       $user->account_cookie = $responseCreateAccount->json()['AccountCookie'];
-      $user->wallet = $responseCreateAccount->json()['DepositAddress'];
+
+      $responseGetWallet = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+        'a' => 'GetDepositAddress',
+        's' => $responseCreateAccount->json()['SessionCookie'],
+        'Currency' => "doge"
+      ]);
+
+      if ($responseGetWallet->successful()) {
+        $user->wallet = $responseGetWallet->json()['Address'];
+      }
+
       $user->level = 0;
 
       $usernameDoge = $this->generateRandomString();
@@ -247,16 +257,22 @@ class UserController extends Controller
   public function show()
   {
     $grade = Auth::user()->level > 0 ? Grade::find(Auth::user()->level) : null;
-    $progressGrade = GradeHistory::where('user_id', Auth::user())->sum("debit") - GradeHistory::where('user_id', Auth::user())->sum("credit");
+    $progressGrade = GradeHistory::where('user_id', Auth::user()->id)->sum("credit") - GradeHistory::where('user_id', Auth::user()->id)->sum("debit");
+    if ($progressGrade <= 0) {
+      $progressGrade = 0;
+    }
     $pin = PinLedger::where('user_id', Auth::user()->id)->sum('debit') - PinLedger::where('user_id', Auth::user()->id)->sum('credit');
     $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
+    $onQueue = WithdrawQueue::where('user_id', Auth::user()->id)->where('status', 0)->count();
 
     $data = [
       'user' => Auth::user(),
       'grade' => $grade,
-      'progressGrade' => $progressGrade,
+      'gradeTarget' => GradeHistory::where('user_id', Auth::user()->id)->sum("debit"),
+      'progressGrade' => GradeHistory::where('user_id', Auth::user()->id)->sum("credit"),
       'pin' => $pin,
-      'isUserWin' => $isUserWinPlayingBot
+      'isUserWin' => $isUserWinPlayingBot,
+      'onQueue' => $onQueue
     ];
     return response()->json($data, 200);
   }
@@ -272,7 +288,7 @@ class UserController extends Controller
     $code = $this->generateRandomString();
     $data = [
       'subject' => 'code for account changes',
-      'massage' => '<Strong> your code is: "' . $code . '"</Strong></br>. this is the code to change your password, dont share it with anyone'
+      'massage' => '<p><Strong> your code is: "' . $code . '"</Strong>.</p> <p>this is the code to change your password, dont share it with anyone</p>'
     ];
     Mail::send('mail.reRegistration', $data, function ($message) {
       $message->to(Auth::user()->email, 'code account')->subject('code for account changes');
@@ -296,7 +312,7 @@ class UserController extends Controller
     $user = User::find(Auth::user()->id);
     if ($request->password) {
       $this->validate($request, [
-        'password' => 'required|string|confirmed',
+        'password' => 'required|string|min:6|confirmed',
       ]);
 
       $user->password = Hash::make($request->password);
@@ -304,7 +320,7 @@ class UserController extends Controller
     }
     if ($request->transaction_password) {
       $this->validate($request, [
-        'transaction_password' => 'required|string',
+        'transaction_password' => 'required|string|digits:4',
         'transaction_password_confirmation' => 'required|string|same:transaction_password',
       ]);
       $user->transaction_password = Hash::make($request->transaction_password);
@@ -374,17 +390,6 @@ class UserController extends Controller
     return response()->json($data, 500);
   }
 
-  public function isUserGradeProcess()
-  {
-    $onQueue = WithdrawQueue::where('user_id', Auth::user()->id)->count();
-
-    $data = [
-      'onQueue' => $onQueue
-    ];
-
-    return response()->json($data, 200);
-  }
-
   /**
    * Remove the specified resource from storage.
    *
@@ -403,8 +408,8 @@ class UserController extends Controller
    */
   public function generateRandomString()
   {
-    $length = 10;
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $length = 8;
+    $characters = '0123456789dogearn';
     $charactersLength = strlen($characters);
     $randomString = '';
     for ($i = 0; $i < $length; $i++) {
