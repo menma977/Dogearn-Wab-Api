@@ -108,7 +108,7 @@ class GradeHistoryController extends Controller
     $pinLedger->save();
 
     $data = [
-      'massage' => 'Your upgrade is currently in the queue'
+      'message' => 'Your upgrade is currently in the queue'
     ];
 
     return response()->json($data, 200);

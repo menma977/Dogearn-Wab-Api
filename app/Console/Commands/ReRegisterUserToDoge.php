@@ -69,7 +69,7 @@ class ReRegisterUserToDoge extends Command
 
             $data = [
               'subject' => 'Your registration process has been completed',
-              'massage' => 'Hallo ' . $user->email . ' has been registered correctly and can login to the application'
+              'message' => 'Hallo ' . $user->email . ' has been registered correctly and can login to the application'
             ];
             Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
               $message->to($user->email, 'Registration')->subject('Your registration process has been completed');

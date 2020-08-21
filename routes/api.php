@@ -19,11 +19,13 @@ header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
 Route::post('login', 'Api\UserController@login');
 Route::get('get/data', 'Api\UserController@getDataNotLogin');
 Route::post('/store', 'Api\UserController@store')->name('store');
+Route::post('/send/email', 'Api\UserController@sendEmail')->name('sendEmail');
 
 Route::middleware('auth:api')->group(function () {
   Route::get('get/data/login', 'Api\UserController@getDataLogin');
 
   Route::group(['prefix' => 'user', 'as' => 'user.'], static function () {
+    Route::post('/password/validator', 'Api\UserController@passwordValidator')->name('passwordValidator');
     Route::get('/show', 'Api\UserController@show')->name('show');
     Route::get('/edit', 'Api\UserController@edit')->name('edit');
     Route::post('/update', 'Api\UserController@update')->name('update');
@@ -36,6 +38,10 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/store', 'Api\GradeHistoryController@store')->name('store');
     Route::get('/show', 'Api\GradeHistoryController@show')->name('show');
     Route::post('/update', 'Api\GradeHistoryController@update')->name('update');
+  });
+
+  Route::group(['prefix' => 'pin', 'as' => 'pin.'], static function () {
+    Route::post('/store', 'Api\PinLedgerController@store')->name('store');
   });
 
 });

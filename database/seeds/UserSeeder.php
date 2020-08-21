@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
     $data->phone = "6281211610807";
     $data->email = "admin@gmail.com";
     $data->password = Hash::make('admin');
-    $data->password_junk = "admin";
+    $data->password_junk = "1234";
     $data->transaction_password = Hash::make('admin');
     $data->username_doge = "dogearn977";
     $data->password_doge = "123456789";

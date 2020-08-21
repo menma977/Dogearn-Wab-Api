@@ -14,6 +14,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Exception;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
@@ -49,109 +50,117 @@ class GradeHistoryController extends Controller
    */
   public function store(Request $request)
   {
-    $sumPin = PinLedger::where('user_id', Auth::user()->id)->sum('debit') - PinLedger::where('user_id', Auth::user()->id)->sum('credit');
-    if ($sumPin) {
-      $this->validate($request, [
-        'grade' => 'required|numeric|exists:grades,id',
-        'balance' => 'required|numeric',
-      ]);
+    $this->validate($request, [
+      'grade' => 'required|numeric|exists:grades,id',
+      'balance' => 'required|numeric',
+      'secondaryPassword' => 'required|numeric'
+    ]);
 
-      $user = User::find(Auth::user()->id);
-      $getGradeById = Grade::find($request->grade);
-      if ($sumPin >= $getGradeById->pin && $request->balance >= $getGradeById->price) {
-        $gradeHistoryList = GradeHistory::where('user_id', $user->id)->get();
-        $grade = new GradeHistory();
-        $grade->user_id = Auth::user()->id;
-        $grade->debit = $getGradeById->price * 5;
-        $grade->credit = 0;
-        if ($gradeHistoryList->count()) {
-          $grade->upgrade_level = $gradeHistoryList->first()->upgrade_level + 1;
-        } else {
-          $grade->upgrade_level = 1;
-        }
+    if (Hash::check($request->secondaryPassword, Auth::user()->transaction_password)) {
+      $sumPin = PinLedger::where('user_id', Auth::user()->id)->sum('debit') - PinLedger::where('user_id', Auth::user()->id)->sum('credit');
+      if ($sumPin) {
+        $user = User::find(Auth::user()->id);
+        $getGradeById = Grade::find($request->grade);
+        if ($sumPin >= $getGradeById->pin && $request->balance > $getGradeById->price) {
+          $gradeHistoryList = GradeHistory::where('user_id', $user->id)->get();
+          $grade = new GradeHistory();
+          $grade->user_id = Auth::user()->id;
+          $grade->debit = $getGradeById->price * 5;
+          $grade->credit = 0;
+          if ($gradeHistoryList->count()) {
+            $grade->upgrade_level = $gradeHistoryList->first()->upgrade_level + 1;
+          } else {
+            $grade->upgrade_level = 1;
+          }
 
-        $user->level = $grade->upgrade_level;
+          $user->level = $grade->upgrade_level;
 
-        $pinLedger = new PinLedger();
-        $pinLedger->user_id = Auth::user()->id;
-        $pinLedger->debit = 0;
-        $pinLedger->credit = $getGradeById->pin;
-        $pinLedger->description = Auth::user()->phone . " use pin : " . $getGradeById->pin . " to Upgrade Grade " . $getGradeById->id;
+          $pinLedger = new PinLedger();
+          $pinLedger->user_id = Auth::user()->id;
+          $pinLedger->debit = 0;
+          $pinLedger->credit = $getGradeById->pin;
+          $pinLedger->description = Auth::user()->phone . " use pin : " . $getGradeById->pin . " to Upgrade Grade " . $getGradeById->id;
 
-        $level = Level::all();
+          $level = Level::all();
 
-        $sponsor = User::find(Binary::where('down_line', Auth::user()->id)->first()->sponsor);
-        $totalValue = $getGradeById->price;
-        foreach ($level as $id => $item) {
-          try {
-            $withdrawQueue = new WithdrawQueue();
-            $withdrawQueue->user_id = Auth::user()->id;
-            $withdrawQueue->status = 0;
-            $withdrawQueue->send_to = $sponsor->id;
+          $sponsor = User::find(Binary::where('down_line', Auth::user()->id)->first()->sponsor);
+          $totalValue = $getGradeById->price;
+          foreach ($level as $id => $item) {
+            try {
+              $withdrawQueue = new WithdrawQueue();
+              $withdrawQueue->user_id = Auth::user()->id;
+              $withdrawQueue->status = 0;
+              $withdrawQueue->send_to = $sponsor->id;
 
-            $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
+              $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
 
-            if ($sponsor->level >= $user->level && $getGradeSponsorSum >= 0 && $sponsor->role === 2 && $sponsor->level > 0) {
-              if ($sponsor->level >= $getGradeById->id) {
-                $withdrawQueue->send_value = $getGradeById->price * $item->percent / 100;
-                $totalValue -= $withdrawQueue->send_value;
-                $withdrawQueue->total = $totalValue;
-                $withdrawQueue->save();
-              } else {
-                $sponsorGrade = Grade::find($sponsor->level);
-                if ($sponsorGrade) {
-                  $withdrawQueue->send_value = $sponsorGrade->price * $item->percent / 100;
+              if ($getGradeSponsorSum >= 0 && $sponsor->role === 2 && $sponsor->level > 0) {
+                if ($sponsor->level >= $getGradeById->id) {
+                  $withdrawQueue->send_value = $getGradeById->price * $item->percent / 100;
                   $totalValue -= $withdrawQueue->send_value;
                   $withdrawQueue->total = $totalValue;
                   $withdrawQueue->save();
+                } else {
+                  $sponsorGrade = Grade::find($sponsor->level);
+                  if ($sponsorGrade) {
+                    $withdrawQueue->send_value = $sponsorGrade->price * $item->percent / 100;
+                    $totalValue -= $withdrawQueue->send_value;
+                    $withdrawQueue->total = $totalValue;
+                    $withdrawQueue->save();
+                  }
                 }
               }
-            }
 
-            if ($sponsor->id === 1) {
-              break;
-            }
+              if ($sponsor->id === 1) {
+                break;
+              }
 
-            $oldSponsor = $sponsor->id;
-            $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
-          } catch (Exception $e) {
-            Log::warning($e->getMessage() . " - LINE : " . $e->getLine());
+              $oldSponsor = $sponsor->id;
+              $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
+            } catch (Exception $e) {
+              Log::warning($e->getMessage() . " - LINE : " . $e->getLine());
+            }
           }
-        }
 
-        $withdrawQueue = new WithdrawQueue();
-        $withdrawQueue->user_id = Auth::user()->id;
-        $withdrawQueue->status = 0;
-        $withdrawQueue->send_to = User::find(1)->id;
-        if ($sponsor->level >= $getGradeById->id) {
-          $withdrawQueue->send_value = $totalValue;
-        } else {
-          $withdrawQueue->send_value = $totalValue;
-        }
-        $withdrawQueue->total = 0;
+          $withdrawQueue = new WithdrawQueue();
+          $withdrawQueue->user_id = Auth::user()->id;
+          $withdrawQueue->status = 0;
+          $withdrawQueue->send_to = User::find(1)->id;
+          if ($sponsor->level >= $getGradeById->id) {
+            $withdrawQueue->send_value = $totalValue;
+          } else {
+            $withdrawQueue->send_value = $totalValue;
+          }
+          $withdrawQueue->total = 0;
 
-        $withdrawQueue->save();
-        $user->save();
-        $grade->save();
-        $pinLedger->save();
+          $withdrawQueue->save();
+          $user->save();
+          $grade->save();
+          $pinLedger->save();
+
+          $data = [
+            'message' => 'Your upgrade is currently in the queue'
+          ];
+
+          return response()->json($data, 200);
+        }
 
         $data = [
-          'message' => 'Your upgrade is currently in the queue'
+          'message' => 'insufficient pin or balance to make transaction',
         ];
 
-        return response()->json($data, 200);
+        return response()->json($data, 500);
       }
 
       $data = [
-        'message' => 'insufficient pin or balance to make transaction',
-        'aww' => $sumPin >= $getGradeById->pin
+        'message' => 'insufficient pin or balance to make transaction'
       ];
 
       return response()->json($data, 500);
     }
 
     $data = [
-      'message' => 'insufficient pin or balance to make transaction'
+      'message' => 'Secondary password wrong'
     ];
 
     return response()->json($data, 500);

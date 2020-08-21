@@ -24,12 +24,17 @@ class Kernel extends ConsoleKernel
    */
   protected function schedule(Schedule $schedule)
   {
-    $schedule->command('daily:deleteWithdrawQueuesIfDone')->daily();
-    $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute();
-    $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute();
-    $schedule->command('minute:reRegisterUserToDoge')->everyMinute();
-    $schedule->command('minute:SetWalletWhenNull')->everyMinute();
-    $schedule->command('minute:SetWalletWhenNull')->everyMinute();
+    $schedule->command('daily:deleteWithdrawQueuesIfDone')->daily()->withoutOverlapping();
+
+//    $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
+
+    $schedule->command('minute:reRegisterUserToDoge')->everyMinute()->withoutOverlapping();
+
+    $schedule->command('minute:SetWalletWhenNull')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SetWalletWhenNull')->everyTwoMinutes()->withoutOverlapping();
+    $schedule->command('minute:SetWalletWhenNull')->everyThreeMinutes()->withoutOverlapping();
+    $schedule->command('minute:SetWalletWhenNull')->everyFourMinutes()->withoutOverlapping();
+    $schedule->command('minute:SetWalletWhenNull')->everyFiveMinutes()->withoutOverlapping();
   }
 
   /**
