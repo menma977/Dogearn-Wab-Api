@@ -20,4 +20,16 @@ Route::get('/', function () {
 
 Auth::routes(['register' => false]);
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::middleware('auth')->group(static function () {
+  Route::get('/home', 'HomeController@index')->name('home');
+
+  Route::group(['prefix' => 'pin', 'as' => 'pin.'], static function () {
+    Route::get('/', 'PinLedgerController@index')->name('index');
+    Route::post('/store', 'PinLedgerController@store')->name('store');
+  });
+
+  Route::group(['prefix' => 'binary', 'as' => 'binary.'], static function () {
+    Route::get('/', 'BinaryController@index')->name('index');
+    Route::get('/find/{id}', 'BinaryController@show')->name('show');
+  });
+});

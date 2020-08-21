@@ -1,100 +1,123 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+@extends('layouts.app')
 
-  <title>Laravel</title>
-
-  <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
-
-  <!-- Styles -->
-  <style>
-      html, body {
-          background-color: #fff;
-          color: #636b6f;
-          font-family: 'Nunito', sans-serif;
-          font-weight: 200;
-          height: 100vh;
-          margin: 0;
-      }
-
-      .full-height {
-          height: 100vh;
-      }
-
-      .flex-center {
-          align-items: center;
-          display: flex;
-          justify-content: center;
-      }
-
-      .position-ref {
-          position: relative;
-      }
-
-      .top-right {
-          position: absolute;
-          right: 10px;
-          top: 18px;
-      }
-
-      .content {
-          text-align: center;
-      }
-
-      .title {
-          font-size: 84px;
-      }
-
-      .links > a {
-          color: #636b6f;
-          padding: 0 25px;
-          font-size: 13px;
-          font-weight: 600;
-          letter-spacing: .1rem;
-          text-decoration: none;
-          text-transform: uppercase;
-      }
-
-      .m-b-md {
-          margin-bottom: 30px;
-      }
-  </style>
-</head>
-<body>
-<div class="flex-center position-ref full-height">
-  @if (Route::has('login'))
-    <div class="top-right links">
-      @auth
-        <a href="{{ url('/home') }}">Home</a>
-      @else
-        <a href="{{ route('login') }}">Login</a>
-
-        @if (Route::has('register'))
-          <a href="{{ route('register') }}">Register</a>
-        @endif
-      @endauth
+@section('title')
+  <div class="row mb-2">
+    <div class="col-sm-6">
+      <h1>Network</h1>
     </div>
-  @endif
-
-  <div class="content">
-    <div class="title m-b-md">
-      Laravel
-    </div>
-
-    <div class="links">
-      <a href="https://laravel.com/docs">Docs</a>
-      <a href="https://laracasts.com">Laracasts</a>
-      <a href="https://laravel-news.com">News</a>
-      <a href="https://blog.laravel.com">Blog</a>
-      <a href="https://nova.laravel.com">Nova</a>
-      <a href="https://forge.laravel.com">Forge</a>
-      <a href="https://vapor.laravel.com">Vapor</a>
-      <a href="https://github.com/laravel/laravel">GitHub</a>
+    <div class="col-sm-6">
+      <ol class="breadcrumb float-sm-right">
+        <li class="breadcrumb-item">
+          <a href="{{ route('home') }}">
+            Home
+          </a>
+        </li>
+        <li class="breadcrumb-item active">
+          Network
+        </li>
+      </ol>
     </div>
   </div>
-</div>
-</body>
-</html>
+@endsection
+
+@section('content')
+  <div class="table-responsive">
+    <ul class="tree">
+      <li>
+        <div class="fa fa-minus-circle" style="min-width: 200px">
+          {{ Auth::user()->email }}
+        </div>
+        <ul class="nested">
+          @foreach ($binary as $item)
+            <li>
+              <a href="#" id="caret-{{ $item->down_line }}" class="fa fa-plus-circle" onclick="addCaret('{{ $item->down_line }}')" style="min-width: 200px">
+                @if ($item->userDownLine)
+                  {{ $item->userDownLine->email }}
+                @endif
+              </a>
+              <div id="{{ $item->down_line }}"></div>
+            </li>
+          @endforeach
+        </ul>
+      </li>
+    </ul>
+  </div>
+@endsection
+
+@section('addCss')
+  <style>
+      ul.tree,
+      ul.tree ul {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+      }
+
+      ul.tree ul {
+          margin-left: 10px;
+      }
+
+      ul.tree li {
+          margin: 0;
+          padding: 0 10px;
+          line-height: 20px;
+          font-weight: bold;
+      }
+
+      ul.tree li:last-child {
+          border-left: none;
+      }
+
+      ul.tree li:before {
+          position: relative;
+          top: -0.3em;
+          height: 1em;
+          width: 12px;
+          color: white;
+          content: "";
+          display: inline-block;
+          left: -7px;
+      }
+  </style>
+@endsection
+
+@section('addJs')
+  <script>
+    function addCaret(user) {
+      if (document.getElementById('caret-' + user).className === "fa fa-minus-circle") {
+        document.getElementById(user).innerHTML = "";
+        document.getElementById('caret-' + user).className = "fa fa-plus-circle";
+      } else {
+        document.getElementById('caret-' + user).className = "fa fa-minus-circle";
+        let url = "{{ route('binary.show', '%data%') }}";
+        url = url.replace('%data%', user);
+        fetch(url, {
+          method: 'GET',
+          headers: new Headers({
+            'Content-Type': 'application/x-www-form-urlencoded',
+            "X-CSRF-TOKEN": $("input[name='_token']").val()
+          }),
+        }).then((response) => response.json()).then((responseData) => {
+          let idSponsor = 0;
+          let htmlBody = '';
+          responseData.forEach(element => {
+            idSponsor = element.sponsor;
+            let user = '<li>' +
+              '<a href="#" id="caret-'
+              + element.down_line
+              + '" class="fa fa-plus-circle" onclick="addCaret(`%data%`)" style="min-width: 200px"> '
+              + element.userDownLine.email
+              + '</a> <div id="'
+              + element.down_line + '"></div>'
+              + '</li>';
+            user = user.replace('%data%', element.down_line);
+            htmlBody += '<ul class="nested active">' + user + '</ul>';
+          });
+          document.getElementById(idSponsor).innerHTML = htmlBody;
+        }).catch((error) => {
+          //console.log(error);
+        });
+      }
+    }
+  </script>
+@endsection

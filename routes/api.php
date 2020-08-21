@@ -44,4 +44,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/store', 'Api\PinLedgerController@store')->name('store');
   });
 
+  Route::group(['prefix' => 'binary/api/', 'as' => 'binary.api.'], static function () {
+    Route::post('/', 'Api\BinaryController@index')->name('index');
+    Route::get('/find/{id}', 'Api\BinaryController@show')->name('show');
+  });
+
 });

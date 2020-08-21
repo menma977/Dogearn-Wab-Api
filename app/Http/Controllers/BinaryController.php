@@ -3,83 +3,58 @@
 namespace App\Http\Controllers;
 
 use App\Model\Binary;
+use App\User;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 class BinaryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
+  /**
+   * Create a new controller instance.
+   *
+   * @return void
+   */
+  public function __construct()
+  {
+    $this->middleware('auth');
+  }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+  /**
+   * Display a listing of the resource.
+   *
+   * @return Application|Factory|Response|View
+   */
+  public function index()
+  {
+    $binary = Binary::where('sponsor', Auth::user()->id)->get();
+    $binary->map(function ($item) {
+      $item->userDownLine = User::find($item->down_line);
+    });
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+    $data = [
+      'binary' => $binary
+    ];
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Model\Binary  $binary
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Binary $binary)
-    {
-        //
-    }
+    return view('binary.index', $data);
+  }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Model\Binary  $binary
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Binary $binary)
-    {
-        //
-    }
+  /**
+   * Display the specified resource.
+   *
+   * @param $id
+   * @return Response
+   */
+  public function show($id)
+  {
+    $binary = Binary::where('sponsor', $id)->get();
+    $binary->map(function ($item) {
+      $item->userDownLine = User::find($item->user);
+    });
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Model\Binary  $binary
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Binary $binary)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Model\Binary  $binary
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Binary $binary)
-    {
-        //
-    }
+    return $binary;
+  }
 }
