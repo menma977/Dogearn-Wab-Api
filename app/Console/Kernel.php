@@ -31,10 +31,8 @@ class Kernel extends ConsoleKernel
     $schedule->command('minute:reRegisterUserToDoge')->everyMinute()->withoutOverlapping();
 
     $schedule->command('minute:SetWalletWhenNull')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:SetWalletWhenNull')->everyTwoMinutes()->withoutOverlapping();
-    $schedule->command('minute:SetWalletWhenNull')->everyThreeMinutes()->withoutOverlapping();
-    $schedule->command('minute:SetWalletWhenNull')->everyFourMinutes()->withoutOverlapping();
-    $schedule->command('minute:SetWalletWhenNull')->everyFiveMinutes()->withoutOverlapping();
+
+    $schedule->command('minute:DeleteUserIfNotActive')->everyMinute()->withoutOverlapping();
   }
 
   /**

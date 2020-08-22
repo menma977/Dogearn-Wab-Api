@@ -55,8 +55,57 @@ class GradeHistoryController extends Controller
       $grade = Grade::find(Auth::user()->level + 1);
     }
 
+    $totalValue = $grade->price;
+
+    $level = Level::all();
+    $dataQueue = array();
+    $binaries = Binary::where('down_line', Auth::user()->id)->first();
+    $sponsor = User::find($binaries->sponsor);
+    foreach ($level as $id => $item) {
+      try {
+        if ($sponsor->id === 1) {
+          break;
+        }
+
+        $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
+        if ($getGradeSponsorSum >= 0 && $sponsor->role === 2 && $sponsor->level >= 0) {
+          if ($sponsor->level >= $grade->id) {
+            $totalValue -= $grade->price * $item->percent / 100;
+            $dataList = [
+              'user' => $sponsor->email,
+              'value' => $totalValue,
+            ];
+            array_push($dataQueue, $dataList);
+          } else {
+            $sponsorGrade = Grade::find($sponsor->level);
+            if ($sponsorGrade) {
+              $totalValue -= $sponsorGrade->price * $item->percent / 100;
+              $dataList = [
+                'user' => $sponsor->email,
+                'value' => $totalValue,
+              ];
+              array_push($dataQueue, $dataList);
+
+            }
+          }
+        }
+
+        $oldSponsor = $sponsor->id;
+        $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
+      } catch (Exception $e) {
+        Log::warning($e->getMessage() . " - LINE : " . $e->getLine());
+      }
+    }
+
+    $dataList = [
+      'user' => User::find(1)->email,
+      'value' => $totalValue,
+    ];
+    array_push($dataQueue, $dataList);
+
     $data = [
       'grade' => $grade,
+      'dataQueue' => $dataQueue,
     ];
 
     return response()->json($data, 200);
@@ -108,6 +157,10 @@ class GradeHistoryController extends Controller
           $totalValue = $getGradeById->price;
           foreach ($level as $id => $item) {
             try {
+              if ($sponsor->id === 1) {
+                break;
+              }
+
               $withdrawQueue = new WithdrawQueue();
               $withdrawQueue->user_id = Auth::user()->id;
               $withdrawQueue->status = 0;
@@ -115,7 +168,7 @@ class GradeHistoryController extends Controller
 
               $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
 
-              if ($getGradeSponsorSum >= 0 && $sponsor->role === 2 && $sponsor->level > 0) {
+              if ($getGradeSponsorSum > 0 && $sponsor->role === 2 && $sponsor->level > 0) {
                 if ($sponsor->level >= $getGradeById->id) {
                   $withdrawQueue->send_value = $getGradeById->price * $item->percent / 100;
                   $totalValue -= $withdrawQueue->send_value;
@@ -130,10 +183,6 @@ class GradeHistoryController extends Controller
                     $withdrawQueue->save();
                   }
                 }
-              }
-
-              if ($sponsor->id === 1) {
-                break;
               }
 
               $oldSponsor = $sponsor->id;

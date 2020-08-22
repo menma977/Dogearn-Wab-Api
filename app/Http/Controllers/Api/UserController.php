@@ -15,6 +15,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -251,8 +252,8 @@ class UserController extends Controller
             ];
             $dataEmail = [
               'subject' => 'Your registration process has been completed',
-              'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly and can login to the application <br> with password : ' . $user->password_junk . ' <br> password transaction : ' . $request->transaction_password,
-              'link' => url('/confirmation/' . $user->email . '/' . $user->password)
+              'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly and can login to the application <br> with password : ' . $user->password_junk . ' <br> secondary password : ' . $request->transaction_password . '<br> <br> Link to continue registration',
+              'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
             ];
           } else {
             $user->status = 1;
@@ -261,8 +262,8 @@ class UserController extends Controller
             ];
             $dataEmail = [
               'subject' => 'Your registration process has been completed',
-              'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password,
-              'link' => url('/confirmation/' . $user->email . '/' . $user->password)
+              'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> secondary password : ' . $user->transaction_password . '<br> <br> Link to continue registration',
+              'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
             ];
           }
         } catch (Exception $e) {
@@ -272,8 +273,8 @@ class UserController extends Controller
           ];
           $dataEmail = [
             'subject' => 'Your registration process has been completed',
-            'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password,
-            'link' => url('/confirmation/' . $user->email . '/' . $user->password)
+            'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> secondary password : ' . $user->transaction_password . '<br> <br> Link to continue registration',
+            'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
           ];
         }
       } else {
@@ -285,8 +286,8 @@ class UserController extends Controller
         ];
         $dataEmail = [
           'subject' => 'Your registration process has been completed',
-          'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password,
-          'link' => url('/confirmation/' . $user->email . '/' . $user->password)
+          'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> secondary password : ' . $user->transaction_password . '<br> <br> Link to continue registration',
+          'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
         ];
       }
 
@@ -384,10 +385,22 @@ class UserController extends Controller
     if ($request->password) {
       $this->validate($request, [
         'password' => 'required|string|min:6|confirmed',
+        'secondaryPassword' => 'required|numeric'
       ]);
-      $user->password = Hash::make($request->password);
-      $user->password_junk = $request->password;
-      $user->save();
+      if (Hash::check($request->secondaryPassword, Auth::user()->transaction_password)) {
+        $user->password = Hash::make($request->password);
+        $user->password_junk = $request->password;
+        $user->save();
+        $data = [
+          'message' => 'Your update Is Success',
+        ];
+        return response()->json($data, 200);
+      }
+
+      $data = [
+        'message' => 'Wrong Secondary password',
+      ];
+      return response()->json($data, 500);
     }
     if ($request->transaction_password) {
       $this->validate($request, [
@@ -396,19 +409,36 @@ class UserController extends Controller
       ]);
       $user->transaction_password = Hash::make($request->transaction_password);
       $user->save();
+      $data = [
+        'message' => 'Your update Is Success',
+      ];
+      return response()->json($data, 200);
     }
     if ($request->phone) {
       $this->validate($request, [
         'phone' => 'required|numeric|unique:users',
         'phoneConfirm' => 'required|string|same:phone',
+        'secondaryPassword' => 'required|numeric'
       ]);
-      $user->phone = $request->phone;
-      $user->save();
+      if (Hash::check($request->secondaryPassword, Auth::user()->transaction_password)) {
+        $user->phone = $request->phone;
+        $user->save();
+        $data = [
+          'message' => 'Your update Is Success',
+        ];
+        return response()->json($data, 200);
+      }
+
+      $data = [
+        'message' => 'Wrong Secondary password',
+      ];
+      return response()->json($data, 500);
     }
+
     $data = [
-      'message' => 'Your update Is Success',
+      'message' => 'no data is updated',
     ];
-    return response()->json($data, 200);
+    return response()->json($data, 500);
   }
 
   /**
