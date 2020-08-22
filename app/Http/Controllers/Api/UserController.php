@@ -78,7 +78,8 @@ class UserController extends Controller
     $user = User::where('email', $request->email)->first();
     $data = [
       'subject' => 'Password',
-      'message' => '<p>Hello <Strong>' . $user->email . '</Strong>.</p> <p>your Password : ' . $user->password_junk . '</p>'
+      'messages' => '<p>Hello <Strong>' . $user->email . '</Strong>.</p> <p>your Password : ' . $user->password_junk . '</p>',
+      'link' => ''
     ];
     Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
       $message->to($user->email, 'Password')->subject('Send Password');
@@ -117,13 +118,26 @@ class UserController extends Controller
     ]);
     $type = filter_var($request->phone, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
     if (Auth::attempt([$type => request('phone'), 'password' => request('password')])) {
-      if (!Auth::user()->tokens->count()) {
+      if (!Auth::user()->tokens->where('expires_at', now())->count()) {
+        foreach (Auth::user()->tokens as $key => $value) {
+          $value->revoke();
+        }
         $user = Auth::user();
-        if (($user !== null) && $user->suspand === 1 && !$user->wallet) {
+        if (($user !== null) && $user->suspand === 1) {
           $data = [
             'message' => 'The given data was invalid.',
             'errors' => [
               'validation' => ['Your account has been suspended.'],
+            ],
+          ];
+          return response()->json($data, 500);
+        }
+
+        if (($user !== null) && $user->status === 0) {
+          $data = [
+            'message' => 'The given data was invalid.',
+            'errors' => [
+              'warning' => ['please confirm your email first.'],
             ],
           ];
           return response()->json($data, 500);
@@ -141,7 +155,7 @@ class UserController extends Controller
       }
 
       $data = [
-        'message' => 'you are already logged in on another cellphone, please log out first.',
+        'message' => 'you are already logged in on another cellphone, please log out first or wait until 2 hours.',
       ];
       return response()->json($data, 500);
     }
@@ -237,7 +251,8 @@ class UserController extends Controller
             ];
             $dataEmail = [
               'subject' => 'Your registration process has been completed',
-              'message' => 'Hallo ' . $user->email . ' <br>you been registered correctly and can login to the application <br> with password : ' . $user->password_junk . ' <br> password transaction : ' . $request->transaction_password
+              'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly and can login to the application <br> with password : ' . $user->password_junk . ' <br> password transaction : ' . $request->transaction_password,
+              'link' => url('/confirmation/' . $user->email . '/' . $user->password)
             ];
           } else {
             $user->status = 1;
@@ -246,7 +261,8 @@ class UserController extends Controller
             ];
             $dataEmail = [
               'subject' => 'Your registration process has been completed',
-              'message' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password
+              'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password,
+              'link' => url('/confirmation/' . $user->email . '/' . $user->password)
             ];
           }
         } catch (Exception $e) {
@@ -256,7 +272,8 @@ class UserController extends Controller
           ];
           $dataEmail = [
             'subject' => 'Your registration process has been completed',
-            'message' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password
+            'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password,
+            'link' => url('/confirmation/' . $user->email . '/' . $user->password)
           ];
         }
       } else {
@@ -268,7 +285,8 @@ class UserController extends Controller
         ];
         $dataEmail = [
           'subject' => 'Your registration process has been completed',
-          'message' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password
+          'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> password transaction : ' . $user->transaction_password,
+          'link' => url('/confirmation/' . $user->email . '/' . $user->password)
         ];
       }
 
@@ -281,7 +299,6 @@ class UserController extends Controller
       $binary->down_line = $user->id;
       $binary->save();
 
-
       Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
         $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
         $message->from('admin@dogearn.com', 'DOGEARN');
@@ -292,7 +309,7 @@ class UserController extends Controller
       $data = [
         'message' => $e->getMessage(),
         'errors' => [
-          'connection' => ['connection is lost when try register data.'],
+          'connection' => [$e->getMessage()],
         ],
       ];
       return response()->json($data, 500);
@@ -311,6 +328,12 @@ class UserController extends Controller
     $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
     $onQueue = WithdrawQueue::where('user_id', Auth::user()->id)->where('status', 0)->count();
 
+    if (Auth::user()->role === 2) {
+      $sponsor = User::find(Binary::where('down_line', Auth::user()->id)->first()->sponsor)->phone;
+    } else {
+      $sponsor = Auth::user()->phone;
+    }
+
     $data = [
       'user' => Auth::user(),
       'grade' => $grade,
@@ -318,7 +341,8 @@ class UserController extends Controller
       'progressGrade' => GradeHistory::where('user_id', Auth::user()->id)->sum("credit"),
       'pin' => $pin,
       'isUserWin' => $isUserWinPlayingBot,
-      'onQueue' => $onQueue
+      'onQueue' => $onQueue,
+      'phoneSponsor' => $sponsor
     ];
     return response()->json($data, 200);
   }
@@ -334,7 +358,8 @@ class UserController extends Controller
     $code = $this->generateRandomString();
     $data = [
       'subject' => 'code for account changes',
-      'message' => '<p><Strong> your code is: "' . $code . '"</Strong>.</p> <p>this is the code to change your password, dont share it with anyone</p>'
+      'messages' => '<p><Strong> your code is: "' . $code . '"</Strong>.</p> <p>this is the code to change your password, dont share it with anyone</p>',
+      'link' => ''
     ];
     Mail::send('mail.reRegistration', $data, function ($message) {
       $message->to(Auth::user()->email, 'code account')->subject('code for account changes');
@@ -360,9 +385,9 @@ class UserController extends Controller
       $this->validate($request, [
         'password' => 'required|string|min:6|confirmed',
       ]);
-
       $user->password = Hash::make($request->password);
       $user->password_junk = $request->password;
+      $user->save();
     }
     if ($request->transaction_password) {
       $this->validate($request, [
@@ -370,8 +395,16 @@ class UserController extends Controller
         'transaction_password_confirmation' => 'required|string|same:transaction_password',
       ]);
       $user->transaction_password = Hash::make($request->transaction_password);
+      $user->save();
     }
-    $user->save();
+    if ($request->phone) {
+      $this->validate($request, [
+        'phone' => 'required|numeric|unique:users',
+        'phoneConfirm' => 'required|string|same:phone',
+      ]);
+      $user->phone = $request->phone;
+      $user->save();
+    }
     $data = [
       'message' => 'Your update Is Success',
     ];

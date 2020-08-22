@@ -18,6 +18,8 @@ Route::get('/', function () {
   return view('welcome');
 });
 
+Route::get('/confirmation/{email}/{password}', 'UserController@index')->name('indexConfirmation');
+
 Auth::routes(['register' => false]);
 
 Route::middleware('auth')->group(static function () {

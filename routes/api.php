@@ -33,7 +33,12 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/logout', 'Api\UserController@logout')->name('logout');
   });
 
+  Route::group(['prefix' => 'doge', 'as' => 'doge.'], static function () {
+    Route::get('/', 'Api\DogeHistoryController@index')->name('index');
+  });
+
   Route::group(['prefix' => 'grade', 'as' => 'grade.'], static function () {
+    Route::get('/', 'Api\GradeHistoryController@index')->name('index');
     Route::get('/create', 'Api\GradeHistoryController@create')->name('create');
     Route::post('/store', 'Api\GradeHistoryController@store')->name('store');
     Route::get('/show', 'Api\GradeHistoryController@show')->name('show');
@@ -41,6 +46,7 @@ Route::middleware('auth:api')->group(function () {
   });
 
   Route::group(['prefix' => 'pin', 'as' => 'pin.'], static function () {
+    Route::get('/', 'Api\PinLedgerController@index')->name('index');
     Route::post('/store', 'Api\PinLedgerController@store')->name('store');
   });
 

@@ -46,7 +46,7 @@ class BinaryController extends Controller
   {
     $binary = Binary::where('sponsor', $id)->get();
     $binary->map(function ($item) {
-      $item->userDownLine = User::find($item->user);
+      $item->userDownLine = User::find($item->down_line);
     });
 
     return $binary;

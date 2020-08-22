@@ -115,7 +115,7 @@
           });
           document.getElementById(idSponsor).innerHTML = htmlBody;
         }).catch((error) => {
-          //console.log(error);
+          // console.log(error);
         });
       }
     }

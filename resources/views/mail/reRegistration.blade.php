@@ -208,7 +208,12 @@
                           <div style="line-height: 1.5; font-size: 12px; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; color: #555555; mso-line-height-alt: 18px;">
                             <p style="line-height: 1.5; word-break: break-word; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 16px; mso-line-height-alt: 24px; margin: 0;">
                               <span style="font-size: 16px; color: #2a272b;">
-                                {!! $massage !!}
+                                {!! $messages !!}
+                              </span>
+                            </p>
+                            <p style="line-height: 1.5; word-break: break-word; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 16px; mso-line-height-alt: 24px; margin: 0;">
+                              <span style="font-size: 16px; color: #2a272b;">
+                                {{ $link ?: '' }}
                               </span>
                             </p>
                           </div>
@@ -216,78 +221,6 @@
                       </td>
                     </tr>
                   </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div style="background-color:transparent;">
-        <div class="block-grid" style="Margin: 0 auto; min-width: 320px; max-width: 640px; overflow-wrap: break-word; word-wrap: break-word; word-break: break-word; background-color: transparent;">
-          <div
-              style="border-collapse: collapse;display: table;width: 100%;background-color:transparent;background-image:url({{ asset('images/final-cta-ALT.jpg') }});background-position:top center;background-repeat:no-repeat">
-            <div class="col num12" style="min-width: 320px; max-width: 640px; display: table-cell; vertical-align: top; width: 640px;">
-              <div style="width:100% !important;">
-                <div
-                    style="border-top:0 solid transparent; border-left:0 solid transparent; border-bottom:0 solid transparent; border-right:0 solid transparent; padding: 60px 0;">
-                  <div class="mobile_hide">
-                    <table border="0" cellpadding="0" cellspacing="0" class="divider" role="presentation"
-                           style="table-layout: fixed; vertical-align: top; border-spacing: 0; border-collapse: collapse; mso-table-lspace: 0; mso-table-rspace: 0; min-width: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;"
-                           width="100%">
-                      <tbody>
-                      <tr style="vertical-align: top;" valign="top">
-                        <td class="divider_inner"
-                            style="word-break: break-word; vertical-align: top; min-width: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding: 35px 0 0;"
-                            valign="top">
-                          <table align="center" border="0" cellpadding="0" cellspacing="0" class="divider_content" role="presentation"
-                                 style="table-layout: fixed; vertical-align: top; border-spacing: 0; border-collapse: collapse; mso-table-lspace: 0; mso-table-rspace: 0; border-top: 0 solid #BBBBBB; width: 100%;"
-                                 width="100%">
-                            <tbody>
-                            <tr style="vertical-align: top;" valign="top">
-                              <td style="word-break: break-word; vertical-align: top; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;" valign="top"><span></span></td>
-                            </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <div style="color:#555555;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;line-height:1.2;padding: 0;">
-                    <div style="line-height: 1.2; font-size: 12px; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; color: #555555; mso-line-height-alt: 14px;">
-                      <p style="font-size: 16px; line-height: 1.2; word-break: break-word; text-align: center; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; mso-line-height-alt: 19px; margin: 0;">
-                        <span style="color: #004afd;"><strong>DOGEARN</strong></span></p>
-                    </div>
-                  </div>
-                  <div style="color:#555555;font-family:Helvetica Neue, Helvetica, Arial, sans-serif;line-height:1.2;padding: 20px 0 28px;">
-                    <div style="line-height: 1.2; font-size: 12px; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; color: #555555; mso-line-height-alt: 14px;">
-                      <p style="font-size: 42px; line-height: 1.2; word-break: break-word; text-align: center; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; mso-line-height-alt: 50px; margin: 0;">
-                        <span style="font-size: 42px; color: #2a272b;"><strong>Selo<br/></strong></span><span style="font-size: 42px; color: #2a272b;"><strong>Gan</strong></span></p>
-                    </div>
-                  </div>
-                  <div class="mobile_hide">
-                    <table border="0" cellpadding="0" cellspacing="0" class="divider" role="presentation"
-                           style="table-layout: fixed; vertical-align: top; border-spacing: 0; border-collapse: collapse; mso-table-lspace: 0; mso-table-rspace: 0; min-width: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;"
-                           width="100%">
-                      <tbody>
-                      <tr style="vertical-align: top;" valign="top">
-                        <td class="divider_inner"
-                            style="word-break: break-word; vertical-align: top; min-width: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; padding: 10px 0 0;"
-                            valign="top">
-                          <table align="center" border="0" cellpadding="0" cellspacing="0" class="divider_content" role="presentation"
-                                 style="table-layout: fixed; vertical-align: top; border-spacing: 0; border-collapse: collapse; mso-table-lspace: 0; mso-table-rspace: 0; border-top: 0 solid #BBBBBB; width: 100%;"
-                                 width="100%">
-                            <tbody>
-                            <tr style="vertical-align: top;" valign="top">
-                              <td style="word-break: break-word; vertical-align: top; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;" valign="top"><span></span></td>
-                            </tr>
-                            </tbody>
-                          </table>
-                        </td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
                 </div>
               </div>
             </div>

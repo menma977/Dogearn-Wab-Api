@@ -10,6 +10,7 @@ use App\Model\Level;
 use App\Model\PinLedger;
 use App\Model\WithdrawQueue;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +21,26 @@ use Illuminate\Validation\ValidationException;
 
 class GradeHistoryController extends Controller
 {
+  /**
+   * Display a listing of the resource.
+   *
+   * @return JsonResponse
+   */
+  public function index()
+  {
+    $gradeHistory = GradeHistory::take(50)->orderBy('id', 'desc')->get();
+    $gradeHistory->map(function ($item) {
+      $item->email = User::find($item->user_id)->email;
+      $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
+    });
+
+    $data = [
+      'gradeHistory' => $gradeHistory
+    ];
+
+    return response()->json($data, 200);
+  }
+
   /**
    * Show the form for creating a new resource.
    *

@@ -79,7 +79,7 @@ class ReRegisterUserToDoge extends Command
         }
       }
     } catch (Exception $e) {
-      Log::info($e->getMessage());
+      Log::info($e->getMessage(). " - ". $e->getLine());
     }
   }
 

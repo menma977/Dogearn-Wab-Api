@@ -5,14 +5,35 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Model\PinLedger;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class PinLedgerController extends Controller
 {
+  /**
+   * Display a listing of the resource.
+   *
+   * @return JsonResponse
+   */
+  public function index()
+  {
+    $pinLedgers = PinLedger::take(50)->orderBy('id', 'desc')->get();
+    $pinLedgers->map(function ($item) {
+      $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
+    });
+
+    $data = [
+      'pinLedgers' => $pinLedgers
+    ];
+
+    return response()->json($data, 200);
+  }
+
   /**
    * @param Request $request
    * @return JsonResponse
@@ -34,14 +55,14 @@ class PinLedgerController extends Controller
         $pinLedger->user_id = Auth::user()->id;
         $pinLedger->debit = 0;
         $pinLedger->credit = $request->pin;
-        $pinLedger->description = Auth::user()->email . " send pin : " . $request->pin . " to " . $grabUser->email;
+        $pinLedger->description = Auth::user()->email . " send Pin to " . $grabUser->email;
         $pinLedger->save();
 
         $pinLedger = new PinLedger();
         $pinLedger->user_id = $grabUser->id;
         $pinLedger->debit = $request->pin;
         $pinLedger->credit = 0;
-        $pinLedger->description = $grabUser->email . " receive pin : " . $request->pin . " from " . Auth::user()->email;
+        $pinLedger->description = $grabUser->email . " receive Pin from " . Auth::user()->email;
         $pinLedger->save();
 
         $data = [
