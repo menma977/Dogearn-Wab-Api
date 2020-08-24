@@ -28,9 +28,14 @@ class GradeHistoryController extends Controller
    */
   public function index()
   {
-    $gradeHistory = GradeHistory::take(50)->orderBy('id', 'desc')->get();
+    $gradeHistory = GradeHistory::where('user_id', Auth::user()->id)->take(50)->orderBy('id', 'desc')->get();
     $gradeHistory->map(function ($item) {
-      $item->email = User::find($item->user_id)->email;
+      if ($item->user_id === 0) {
+        $item->email = "Network Fee";
+      } else {
+        $item->email = User::find($item->user_id)->email;
+      }
+
       $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
     });
 
@@ -60,45 +65,54 @@ class GradeHistoryController extends Controller
     $level = Level::all();
     $dataQueue = array();
     $binaries = Binary::where('down_line', Auth::user()->id)->first();
-    $sponsor = User::find($binaries->sponsor);
-    foreach ($level as $id => $item) {
-      try {
-        if ($sponsor->id === 1) {
-          break;
-        }
+    if ($binaries) {
+      $sponsor = User::find($binaries->sponsor);
+      foreach ($level as $id => $item) {
+        try {
+          if ($sponsor->id === 1) {
+            break;
+          }
 
-        $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
-        if ($getGradeSponsorSum >= 0 && $sponsor->role === 2 && $sponsor->level >= 0) {
-          if ($sponsor->level >= $grade->id) {
-            $totalValue -= $grade->price * $item->percent / 100;
-            $dataList = [
-              'user' => $sponsor->email,
-              'value' => $totalValue,
-            ];
-            array_push($dataQueue, $dataList);
-          } else {
-            $sponsorGrade = Grade::find($sponsor->level);
-            if ($sponsorGrade) {
-              $totalValue -= $sponsorGrade->price * $item->percent / 100;
+          $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
+          if ($getGradeSponsorSum >= 0 && $sponsor->role === 2 && $sponsor->level >= 0) {
+            if ($sponsor->level >= $grade->id) {
+              $totalValue -= $grade->price * $item->percent / 100;
               $dataList = [
-                'user' => $sponsor->email,
-                'value' => $totalValue,
+                'user' => $sponsor->wallet,
+                'value' => $grade->price * $item->percent / 100,
               ];
               array_push($dataQueue, $dataList);
-
+            } else {
+              $sponsorGrade = Grade::find($sponsor->level);
+              if ($sponsorGrade) {
+                $totalValue -= $sponsorGrade->price * $item->percent / 100;
+                $dataList = [
+                  'user' => $sponsor->wallet,
+                  'value' => $sponsorGrade->price * $item->percent / 100,
+                ];
+                array_push($dataQueue, $dataList);
+              }
             }
           }
-        }
 
-        $oldSponsor = $sponsor->id;
-        $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
-      } catch (Exception $e) {
-        Log::warning($e->getMessage() . " - LINE : " . $e->getLine());
+          $oldSponsor = $sponsor->id;
+          $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
+        } catch (Exception $e) {
+          Log::warning($e->getMessage() . " - LINE : " . $e->getLine());
+        }
       }
     }
 
+    $itTotalValue = $grade->price * 1 / 100;
     $dataList = [
-      'user' => User::find(1)->email,
+      'user' => "Network Fee",
+      'value' => $grade->price * 1 / 100,
+    ];
+    $totalValue -= $itTotalValue;
+    array_push($dataQueue, $dataList);
+
+    $dataList = [
+      'user' => "Doge to be shared",
       'value' => $totalValue,
     ];
     array_push($dataQueue, $dataList);
@@ -149,61 +163,69 @@ class GradeHistoryController extends Controller
           $pinLedger->user_id = Auth::user()->id;
           $pinLedger->debit = 0;
           $pinLedger->credit = $getGradeById->pin;
-          $pinLedger->description = Auth::user()->phone . " use pin : " . $getGradeById->pin . " to Upgrade Grade " . $getGradeById->id;
+          $pinLedger->description = Auth::user()->email . " use pin : " . $getGradeById->pin . " to Upgrade Grade " . $getGradeById->id;
 
           $level = Level::all();
 
-          $sponsor = User::find(Binary::where('down_line', Auth::user()->id)->first()->sponsor);
           $totalValue = $getGradeById->price;
-          foreach ($level as $id => $item) {
-            try {
-              if ($sponsor->id === 1) {
-                break;
-              }
+          $binaries = Binary::where('down_line', Auth::user()->id)->first();
+          if ($binaries) {
+            $sponsor = User::find($binaries->id);
+            foreach ($level as $id => $item) {
+              try {
+                if ($sponsor->id === 1) {
+                  break;
+                }
 
-              $withdrawQueue = new WithdrawQueue();
-              $withdrawQueue->user_id = Auth::user()->id;
-              $withdrawQueue->status = 0;
-              $withdrawQueue->send_to = $sponsor->id;
+                $withdrawQueue = new WithdrawQueue();
+                $withdrawQueue->user_id = Auth::user()->id;
+                $withdrawQueue->status = 0;
+                $withdrawQueue->send_to = $sponsor->id;
 
-              $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
+                $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
 
-              if ($getGradeSponsorSum > 0 && $sponsor->role === 2 && $sponsor->level > 0) {
-                if ($sponsor->level >= $getGradeById->id) {
-                  $withdrawQueue->send_value = $getGradeById->price * $item->percent / 100;
-                  $totalValue -= $withdrawQueue->send_value;
-                  $withdrawQueue->total = $totalValue;
-                  $withdrawQueue->save();
-                } else {
-                  $sponsorGrade = Grade::find($sponsor->level);
-                  if ($sponsorGrade) {
-                    $withdrawQueue->send_value = $sponsorGrade->price * $item->percent / 100;
+                if ($getGradeSponsorSum > 0 && $sponsor->role === 2 && $sponsor->level > 0) {
+                  if ($sponsor->level >= $getGradeById->id) {
+                    $withdrawQueue->send_value = $getGradeById->price * $item->percent / 100;
                     $totalValue -= $withdrawQueue->send_value;
                     $withdrawQueue->total = $totalValue;
                     $withdrawQueue->save();
+                  } else {
+                    $sponsorGrade = Grade::find($sponsor->level);
+                    if ($sponsorGrade) {
+                      $withdrawQueue->send_value = $sponsorGrade->price * $item->percent / 100;
+                      $totalValue -= $withdrawQueue->send_value;
+                      $withdrawQueue->total = $totalValue;
+                      $withdrawQueue->save();
+                    }
                   }
                 }
-              }
 
-              $oldSponsor = $sponsor->id;
-              $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
-            } catch (Exception $e) {
-              Log::warning($e->getMessage() . " - LINE : " . $e->getLine());
+                $oldSponsor = $sponsor->id;
+                $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
+              } catch (Exception $e) {
+                Log::warning($e->getMessage() . " - LINE : " . $e->getLine());
+              }
             }
           }
 
           $withdrawQueue = new WithdrawQueue();
           $withdrawQueue->user_id = Auth::user()->id;
           $withdrawQueue->status = 0;
-          $withdrawQueue->send_to = User::find(1)->id;
-          if ($sponsor->level >= $getGradeById->id) {
-            $withdrawQueue->send_value = $totalValue;
-          } else {
-            $withdrawQueue->send_value = $totalValue;
-          }
-          $withdrawQueue->total = 0;
-
+          $withdrawQueue->send_to = 0;
+          $withdrawQueue->send_value = $getGradeById->price * 1 / 100;
+          $totalValue -= $withdrawQueue->send_value;
+          $withdrawQueue->total = $totalValue;
           $withdrawQueue->save();
+
+          $withdrawQueue = new WithdrawQueue();
+          $withdrawQueue->user_id = Auth::user()->id;
+          $withdrawQueue->status = 0;
+          $withdrawQueue->send_to = User::find(1)->id;
+          $withdrawQueue->send_value = $totalValue;
+          $withdrawQueue->total = 0;
+          $withdrawQueue->save();
+
           $user->save();
           $grade->save();
           $pinLedger->save();

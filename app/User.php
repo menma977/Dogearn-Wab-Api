@@ -22,6 +22,7 @@ use Laravel\Passport\HasApiTokens;
  * @property string wallet
  * @property integer level
  * @property integer status
+ * @property integer suspend
  */
 class User extends Authenticatable
 {
@@ -44,6 +45,7 @@ class User extends Authenticatable
     'account_cookie',
     'wallet',
     'level',
+    'suspend',
   ];
 
   /**

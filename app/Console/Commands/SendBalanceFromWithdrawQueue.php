@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Model\DogeHistory;
 use App\Model\GradeHistory;
+use App\Model\Setting;
 use App\Model\WithdrawQueue;
 use App\User;
 use Exception;
@@ -60,32 +61,63 @@ class SendBalanceFromWithdrawQueue extends Command
 
         if ($responseGetSession->successful() && str_contains($responseGetSession->body(), 'InvalidApiKey') === false && str_contains($responseGetSession->body(), 'LoginInvalid') === false) {
           $dataGetSession = $responseGetSession->json();
-          $response = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
-            'a' => 'Withdraw',
-            's' => $dataGetSession["SessionCookie"],
-            'Amount' => $data->send_value,
-            'Address' => $sendToUser->wallet,
-            'Totp ' => '',
-            'Currency' => 'doge',
-          ]);
+          if ($data->send_to === 0) {
+            $response = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+              'a' => 'Withdraw',
+              's' => $dataGetSession["SessionCookie"],
+              'Amount' => $data->send_value,
+              'Address' => Setting::find(1)->wallet_it,
+              'Totp ' => '',
+              'Currency' => 'doge',
+            ]);
+          } else {
+            $response = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+              'a' => 'Withdraw',
+              's' => $dataGetSession["SessionCookie"],
+              'Amount' => $data->send_value,
+              'Address' => $sendToUser->wallet,
+              'Totp ' => '',
+              'Currency' => 'doge',
+            ]);
+          }
 
           if ($response->successful() && str_contains($response->body(), 'TooSmall') === false && str_contains($response->body(), 'InsufficientFunds') === false) {
             $data->status = 1;
             $data->save();
 
-            $dogeHistory = new DogeHistory();
-            $dogeHistory->user_id = $user->id;
-            $dogeHistory->send_to = $sendToUser->id;
-            $dogeHistory->total = $data->send_value;
-            $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to" . $user->email;
-            $dogeHistory->save();
+            if ($data->send_to === 0) {
+              $dogeHistory = new DogeHistory();
+              $dogeHistory->user_id = $user->id;
+              $dogeHistory->send_to = 0;
+              $dogeHistory->total = $data->send_value;
+              $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to Network Fee";
+              $dogeHistory->save();
 
-            $grade = new GradeHistory();
-            $grade->user_id = $sendToUser->id;
-            $grade->debit = 0;
-            $grade->credit = $data->send_value;
-            $grade->upgrade_level = $sendToUser->level;
-            $grade->save();
+              $grade = new GradeHistory();
+              $grade->user_id = 0;
+              $grade->debit = 0;
+              $grade->credit = $data->send_value;
+              $grade->upgrade_level = 0;
+              $grade->save();
+            } else {
+              $dogeHistory = new DogeHistory();
+              $dogeHistory->user_id = $user->id;
+              $dogeHistory->send_to = $sendToUser->id;
+              $dogeHistory->total = $data->send_value;
+              if ($sendToUser->id === 1) {
+                $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to Doge to be shared";
+              } else {
+                $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to " . $sendToUser->email;
+              }
+              $dogeHistory->save();
+
+              $grade = new GradeHistory();
+              $grade->user_id = $sendToUser->id;
+              $grade->debit = 0;
+              $grade->credit = $data->send_value;
+              $grade->upgrade_level = $sendToUser->level;
+              $grade->save();
+            }
 
             Log::info('delivery process success');
           }

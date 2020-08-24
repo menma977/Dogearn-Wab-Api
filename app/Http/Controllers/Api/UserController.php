@@ -82,6 +82,12 @@ class UserController extends Controller
       'messages' => '<p>Hello <Strong>' . $user->email . '</Strong>.</p> <p>your Password : ' . $user->password_junk . '</p>',
       'link' => ''
     ];
+
+    Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
+      $message->to($user->email, 'Password')->subject('Send Password');
+      $message->from('admin@dogearn.com', 'DOGEARN');
+    });
+
     Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
       $message->to($user->email, 'Password')->subject('Send Password');
       $message->from('admin@dogearn.com', 'DOGEARN');
@@ -204,58 +210,71 @@ class UserController extends Controller
       'transaction_password_confirmation' => 'required|numeric|same:transaction_password',
     ]);
 
-    $responseCreateAccount = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
-      'a' => 'CreateAccount',
-      'Key' => '1b4755ced78e4d91bce9128b9a053cad',
-    ]);
-
-    try {
-      $user = new User();
-      $user->email = $request->email;
-      $user->password = Hash::make($request->password);
-      $user->password_junk = $request->password;
-      $user->transaction_password = Hash::make($request->transaction_password);
-      $user->phone = $request->phone;
-      $user->account_cookie = $responseCreateAccount->json()['AccountCookie'];
-
-      $responseGetWallet = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
-        'a' => 'GetDepositAddress',
-        's' => $responseCreateAccount->json()['SessionCookie'],
-        'Currency' => "doge"
+    $sponsor = User::where($type, $request->sponsor)->first();
+    if ($sponsor->status === 2) {
+      $responseCreateAccount = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+        'a' => 'CreateAccount',
+        'Key' => '1b4755ced78e4d91bce9128b9a053cad',
       ]);
 
-      if ($responseGetWallet->successful()) {
-        $user->wallet = $responseGetWallet->json()['Address'];
-      }
+      try {
+        $user = new User();
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->password_junk = $request->password;
+        $user->transaction_password = Hash::make($request->transaction_password);
+        $user->phone = $request->phone;
+        $user->account_cookie = $responseCreateAccount->json()['AccountCookie'];
 
-      $user->level = 0;
+        $responseGetWallet = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+          'a' => 'GetDepositAddress',
+          's' => $responseCreateAccount->json()['SessionCookie'],
+          'Currency' => "doge"
+        ]);
 
-      $usernameDoge = $this->generateRandomString();
-      $passwordDoge = $this->generateRandomString();
+        if ($responseGetWallet->successful()) {
+          $user->wallet = $responseGetWallet->json()['Address'];
+        }
 
-      $responseCreateUser = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
-        'a' => 'CreateUser',
-        's' => $responseCreateAccount->json()['SessionCookie'],
-        'Username' => $usernameDoge,
-        'Password' => $passwordDoge,
-      ]);
+        $user->level = 0;
 
-      if ($responseCreateUser->successful()) {
-        try {
-          if ($responseCreateUser->json()['success'] === 1) {
-            $user->username_doge = $usernameDoge;
-            $user->password_doge = $passwordDoge;
-            $user->status = 0;
+        $usernameDoge = $this->generateRandomString();
+        $passwordDoge = $this->generateRandomString();
 
-            $data = [
-              'message' => 'Your Register Is Success',
-            ];
-            $dataEmail = [
-              'subject' => 'Your registration process has been completed',
-              'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly and can login to the application <br> with password : ' . $user->password_junk . ' <br> secondary password : ' . $request->transaction_password . '<br> <br> Link to continue registration',
-              'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
-            ];
-          } else {
+        $responseCreateUser = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
+          'a' => 'CreateUser',
+          's' => $responseCreateAccount->json()['SessionCookie'],
+          'Username' => $usernameDoge,
+          'Password' => $passwordDoge,
+        ]);
+
+        if ($responseCreateUser->successful()) {
+          try {
+            if ($responseCreateUser->json()['success'] === 1) {
+              $user->username_doge = $usernameDoge;
+              $user->password_doge = $passwordDoge;
+              $user->status = 0;
+
+              $data = [
+                'message' => 'Your Register Is Success',
+              ];
+              $dataEmail = [
+                'subject' => 'Your registration process has been completed',
+                'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly and can login to the application <br> with password : ' . $user->password_junk . ' <br> secondary password : ' . $request->transaction_password . '<br> <br> Link to continue registration',
+                'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
+              ];
+            } else {
+              $user->status = 1;
+              $data = [
+                'message' => 'You have registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration',
+              ];
+              $dataEmail = [
+                'subject' => 'Your registration process has been completed',
+                'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> secondary password : ' . $user->transaction_password . '<br> <br> Link to continue registration',
+                'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
+              ];
+            }
+          } catch (Exception $e) {
             $user->status = 1;
             $data = [
               'message' => 'You have registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration',
@@ -266,10 +285,12 @@ class UserController extends Controller
               'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
             ];
           }
-        } catch (Exception $e) {
-          $user->status = 1;
+        } else {
           $data = [
-            'message' => 'You have registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration',
+            'message' => 'Your Register Is Invalid',
+            'errors' => [
+              'connection' => ['connection is lost when try register data.'],
+            ],
           ];
           $dataEmail = [
             'subject' => 'Your registration process has been completed',
@@ -277,44 +298,39 @@ class UserController extends Controller
             'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
           ];
         }
-      } else {
+
+        $user->save();
+
+        $binary = new Binary();
+        $binary->sponsor = $sponsor->id;
+        $binary->down_line = $user->id;
+        $binary->save();
+
+        Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
+          $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
+          $message->from('admin@dogearn.com', 'DOGEARN');
+        });
+
+        Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
+          $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
+          $message->from('admin@dogearn.com', 'DOGEARN');
+        });
+
+        return response()->json($data, 200);
+      } catch (Exception $e) {
         $data = [
-          'message' => 'Your Register Is Invalid',
+          'message' => $e->getMessage(),
           'errors' => [
-            'connection' => ['connection is lost when try register data.'],
+            'connection' => [$e->getMessage()],
           ],
         ];
-        $dataEmail = [
-          'subject' => 'Your registration process has been completed',
-          'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $request->password_junk . ' <br> secondary password : ' . $user->transaction_password . '<br> <br> Link to continue registration',
-          'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
-        ];
+        return response()->json($data, 500);
       }
-
-      $user->save();
-
-      $sponsor = User::where($type, $request->sponsor)->first();
-
-      $binary = new Binary();
-      $binary->sponsor = $sponsor->id;
-      $binary->down_line = $user->id;
-      $binary->save();
-
-      Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
-        $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
-        $message->from('admin@dogearn.com', 'DOGEARN');
-      });
-
-      return response()->json($data, 200);
-    } catch (Exception $e) {
-      $data = [
-        'message' => $e->getMessage(),
-        'errors' => [
-          'connection' => [$e->getMessage()],
-        ],
-      ];
-      return response()->json($data, 500);
     }
+    $data = [
+      'message' => "your sponsor is not registered properly",
+    ];
+    return response()->json($data, 500);
   }
 
   /**
@@ -358,10 +374,15 @@ class UserController extends Controller
   {
     $code = $this->generateRandomString();
     $data = [
-      'subject' => 'code for account changes',
-      'messages' => '<p><Strong> your code is: "' . $code . '"</Strong>.</p> <p>this is the code to change your password, dont share it with anyone</p>',
+      'subject' => 'Code for account changes',
+      'messages' => '<p><Strong> Your code is: <div style="font-size: 22px; color: #2a272b;text-align: center">' . $code . '</div></Strong>.</p> <p>this is the code to change your password, dont share it with anyone</p>',
       'link' => ''
     ];
+    Mail::send('mail.reRegistration', $data, function ($message) {
+      $message->to(Auth::user()->email, 'code account')->subject('code for account changes');
+      $message->from('admin@dogearn.com', 'DOGEARN');
+    });
+
     Mail::send('mail.reRegistration', $data, function ($message) {
       $message->to(Auth::user()->email, 'code account')->subject('code for account changes');
       $message->from('admin@dogearn.com', 'DOGEARN');
@@ -517,7 +538,7 @@ class UserController extends Controller
    */
   public function generateRandomString()
   {
-    $length = 8;
+    $length = 12;
     $characters = '0123456789dogearn';
     $charactersLength = strlen($characters);
     $randomString = '';

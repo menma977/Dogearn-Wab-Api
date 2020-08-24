@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Model\DogeHistory;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
 
 class DogeHistoryController extends Controller
 {
@@ -16,7 +17,7 @@ class DogeHistoryController extends Controller
    */
   public function index()
   {
-    $dogeHistory = DogeHistory::take(50)->orderBy('id', 'desc')->get();
+    $dogeHistory = DogeHistory::where('user_id', Auth::user()->id)->take(50)->orderBy('id', 'desc')->get();
     $dogeHistory->map(function ($item) {
       $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
     });

@@ -15,6 +15,7 @@ class SettingSeeder extends Seeder
     $data = new Setting();
     $data->maintenance = 0;
     $data->type_withdraw = 1;
+    $data->wallet_it = "DHRDzBmt5NJtq1nkGz7rdEWVETUDWmQkKm";
     $data->save();
   }
 }

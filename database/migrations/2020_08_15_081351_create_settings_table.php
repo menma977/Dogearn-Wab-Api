@@ -17,6 +17,7 @@ class CreateSettingsTable extends Migration
       $table->id();
       $table->integer('maintenance');
       $table->integer('type_withdraw');
+      $table->text('wallet_it');
       $table->timestamps();
     });
   }

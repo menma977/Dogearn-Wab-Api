@@ -21,10 +21,34 @@
     <nav class="mt-2">
       <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview" role="menu" data-accordion="false">
         <li class="nav-item">
-          <a href="#" class="nav-link {{ request()->is('penyakit') ? 'active' : '' }}">
+          <a href="{{ route('home') }}" class="nav-link {{ request()->is('home') ? 'active' : '' }}">
             <i class="nav-icon fas fa-heartbeat"></i>
             <p>
               Home
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{{ route('user.index') }}" class="nav-link {{ request()->is(['user', 'user/*']) ? 'active' : '' }}">
+            <i class="nav-icon fas fa-user"></i>
+            <p>
+              User
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{{ route('grade.index') }}" class="nav-link {{ request()->is(['grade', 'grade/*']) ? 'active' : '' }}">
+            <i class="nav-icon fab fa-pinterest"></i>
+            <p>
+              Grade
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="{{ route('level.index') }}" class="nav-link {{ request()->is(['level', 'level/*']) ? 'active' : '' }}">
+            <i class="nav-icon fab fa-pinterest"></i>
+            <p>
+              Level
             </p>
           </a>
         </li>

@@ -10,11 +10,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @package App\Model
  * @property integer maintenance
  * @property integer type_withdraw
+ * @property integer wallet_it
  */
 class Setting extends Model
 {
-  use SoftDeletes;
-
   /**
    * The attributes that are mass assignable.
    *
@@ -23,5 +22,6 @@ class Setting extends Model
   protected $fillable = [
     'maintenance',
     'type_withdraw',
+    'wallet_it',
   ];
 }

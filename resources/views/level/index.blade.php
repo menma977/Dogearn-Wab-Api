@@ -3,88 +3,100 @@
 @section('title')
   <div class="row mb-2">
     <div class="col-sm-6">
-      <h1>Send Pin</h1>
+      <h1>level List</h1>
     </div>
     <div class="col-sm-6">
       <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-        <li class="breadcrumb-item active">Send Pin</li>
+        <li class="breadcrumb-item active">level List</li>
       </ol>
     </div>
   </div>
 @endsection
 
 @section('content')
-  <form action="{{ route('pin.store') }}" method="post">
+  <form action="{{ route('level.store') }}" method="post">
     @csrf
     <div class="card card-outline card-primary collapsed-card">
       <div class="card-header">
-        <h3 class="card-title">Send Pin Form</h3>
+        <h3 class="card-title">Add level</h3>
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
           </button>
         </div>
       </div>
       <div class="card-body">
-        <div class="form-group">
-          <label for="user">User</label>
-          <select id="user" name="user" class="form-control select2 select2-primary" data-dropdown-css-class="select2-primary" style="width: 100%;">
-            @foreach($users as $item)
-              <option value="{{ $item->id }}" {{ old('user') === $item->id ? 'selected' : '' }}>{{ $item->email }}</option>
-            @endforeach
-          </select>
-        </div>
         <div class="input-group mb-3">
           <div class="input-group-prepend">
-            <label for="pin" class="input-group-text">PIN</label>
+            <label for="percent" class="input-group-text">Percent(%)</label>
           </div>
-          <input type="number" class="form-control @error('total_pin') is-invalid @enderror" placeholder="Total Pin" id="pin" name="total_pin" value="{{ old('total_pin') }}">
+          <input type="text" class="form-control @error('percent') is-invalid @enderror" placeholder="Total percent" id="percent" name="percent" value="{{ old('percent') }}">
         </div>
       </div>
       <div class="card-footer">
-        <button type="submit" class="btn btn-block btn-outline-primary">Send</button>
+        <button type="submit" class="btn btn-block btn-outline-primary">Save</button>
       </div>
     </div>
   </form>
 
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">List Transaction</h3>
+      <h3 class="card-title">List Level</h3>
     </div>
     <div class="card-body p-0">
       <table class="table table-sm" id="table" style="width: 100%">
-        <thead class="text-center">
+        <thead>
         <tr>
           <th style="width: 20px">#</th>
-          <th>Email</th>
-          <th>description</th>
-          <th style="width: 40px">Send</th>
-          <th style="width: 40px">Received</th>
-          <th>Date</th>
+          <th>percent</th>
+          <th>Edit</th>
+          <th>Delete</th>
         </tr>
         </thead>
-        <tbody class="text-center">
-        @foreach($pinLedgers as $item)
+        <tbody>
+        @foreach($level as $item)
           <tr>
             <td>
               {{ $loop->index + 1 }}.
             </td>
             <td>
-              {{ $item->email }}
+              {{ $item->percent }}%
             </td>
             <td>
-              {{ $item->description }}
+              <button type="button" class="btn btn-block btn-info btn-xs" data-toggle="modal" data-target="#modal-{{ $item->id }}">Edit</button>
             </td>
             <td>
-              {{ $item->debit }}
-            </td>
-            <td>
-              {{ $item->credit }}
-            </td>
-            <td>
-              {{ \Carbon\Carbon::parse($item->created_at)->format('d-M-Y H:i:s') }}
+              <a href="{{ route('level.delete', $item->id) }}">
+                <button type="button" class="btn btn-block btn-danger btn-xs">Delete</button>
+              </a>
             </td>
           </tr>
+          <div class="modal fade" id="modal-{{ $item->id }}">
+            <div class="modal-dialog">
+              <div class="modal-content bg-primary">
+                <div class="modal-header">
+                  <h4 class="modal-title">Edit level(%)</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <i aria-hidden="true">×</i>
+                  </button>
+                </div>
+                <form action="{{ route('level.update', $item->id) }}" method="post">
+                  @csrf
+                  <div class="modal-body">
+                    <div class="form-group">
+                      <label for="percent">percent</label>
+                      <input type="text" class="form-control @error('percent') is-invalid @enderror" placeholder="Total percent" id="percent" name="percent"
+                             value="{{ old('percent')?: $item->percent }}">
+                    </div>
+                  </div>
+                  <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-outline-light" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-outline-light">Save changes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         @endforeach
         </tbody>
       </table>
@@ -132,11 +144,7 @@
         "responsive": true,
       });
 
-      @error('user')
-      toastr.error('{{ $message }}');
-      @enderror
-
-      @error('total_pin')
+      @error('percent')
       toastr.error('{{ $message }}');
       @enderror
     });

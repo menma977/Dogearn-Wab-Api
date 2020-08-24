@@ -14,16 +14,35 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Authorization');
+header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
+
 Route::get('/', function () {
   return view('welcome');
 });
 
-Route::get('/confirmation/{email}/{password}', 'UserController@index')->name('indexConfirmation');
+Route::get('/success', function () {
+  return view('welcomeNewMember');
+});
+
+Route::get('/confirmation/{email}/{password}', 'UserController@indexConfirmation')->name('indexConfirmation');
 
 Auth::routes(['register' => false]);
 
 Route::middleware('auth')->group(static function () {
   Route::get('/home', 'HomeController@index')->name('home');
+
+  Route::group(['prefix' => 'user', 'as' => 'user.'], static function () {
+    Route::get('/', 'UserController@index')->name('index');
+    Route::get('/indexDataDynamic', 'UserController@indexDataDynamic')->name('indexDataDynamic');
+    Route::get('/suspend/{id}/{status}', 'UserController@suspend')->name('suspend');
+    Route::get('/activate/{id}', 'UserController@activate')->name('activate');
+    Route::get('/show/{id}', 'UserController@show')->name('show');
+    Route::post('/update/password/{id}', 'UserController@updatePassword')->name('updatePassword');
+    Route::post('/update/secondary/password/{id}', 'UserController@updateSecondaryPassword')->name('updateSecondaryPassword');
+    Route::post('/update/phone/{id}', 'UserController@updatePhone')->name('updatePhone');
+  });
 
   Route::group(['prefix' => 'pin', 'as' => 'pin.'], static function () {
     Route::get('/', 'PinLedgerController@index')->name('index');
@@ -33,5 +52,19 @@ Route::middleware('auth')->group(static function () {
   Route::group(['prefix' => 'binary', 'as' => 'binary.'], static function () {
     Route::get('/', 'BinaryController@index')->name('index');
     Route::get('/find/{id}', 'BinaryController@show')->name('show');
+  });
+
+  Route::group(['prefix' => 'grade', 'as' => 'grade.'], static function () {
+    Route::get('/', 'GradeController@index')->name('index');
+    Route::post('/store', 'GradeController@store')->name('store');
+    Route::post('/update/{id}', 'GradeController@update')->name('update');
+    Route::get('/delete/{id}', 'GradeController@destroy')->name('delete');
+  });
+
+  Route::group(['prefix' => 'level', 'as' => 'level.'], static function () {
+    Route::get('/', 'LevelController@index')->name('index');
+    Route::post('/store', 'LevelController@store')->name('store');
+    Route::post('/update/{id}', 'LevelController@update')->name('update');
+    Route::get('/delete/{id}', 'LevelController@destroy')->name('delete');
   });
 });

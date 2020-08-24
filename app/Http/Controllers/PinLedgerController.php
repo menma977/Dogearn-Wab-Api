@@ -72,14 +72,12 @@ class PinLedgerController extends Controller
 
     $user = User::find($request->user);
 
-    for ($i = 0; $i <= 1000; $i++) {
-      $pin = new PinLedger();
-      $pin->user_id = $user->id;
-      $pin->debit = $request->total_pin;
-      $pin->credit = 0;
-      $pin->description = 'ADMIN added ' . $request->total_pin . ' PIN to ' . $user->email;
-      $pin->save();
-    }
+    $pin = new PinLedger();
+    $pin->user_id = $user->id;
+    $pin->debit = $request->total_pin;
+    $pin->credit = 0;
+    $pin->description = 'ADMIN added ' . $request->total_pin . ' PIN to ' . $user->email;
+    $pin->save();
 
     return redirect()->back();
   }

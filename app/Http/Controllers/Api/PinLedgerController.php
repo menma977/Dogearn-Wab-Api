@@ -8,7 +8,6 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -22,7 +21,7 @@ class PinLedgerController extends Controller
    */
   public function index()
   {
-    $pinLedgers = PinLedger::take(50)->orderBy('id', 'desc')->get();
+    $pinLedgers = PinLedger::where('user_id', Auth::user()->id)->take(50)->orderBy('id', 'desc')->get();
     $pinLedgers->map(function ($item) {
       $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
     });
