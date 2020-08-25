@@ -33,7 +33,7 @@ class PinLedgerController extends Controller
   {
     $users = User::all();
 
-    $pinLedgers = PinLedger::orderBy('id', 'desc')->get();
+    $pinLedgers = PinLedger::orderBy('id', 'desc')->take(1000)->get();
     $pinLedgers->map(function ($item) {
       $item->email = User::find($item->user_id)->email;
     });
@@ -44,16 +44,6 @@ class PinLedgerController extends Controller
     ];
 
     return view('pin.index', $data);
-  }
-
-  /**
-   * Show the form for creating a new resource.
-   *
-   * @return Response
-   */
-  public function create()
-  {
-    //
   }
 
   /**
@@ -80,50 +70,5 @@ class PinLedgerController extends Controller
     $pin->save();
 
     return redirect()->back();
-  }
-
-  /**
-   * Display the specified resource.
-   *
-   * @param PinLedger $pinLedger
-   * @return Response
-   */
-  public function show(PinLedger $pinLedger)
-  {
-    //
-  }
-
-  /**
-   * Show the form for editing the specified resource.
-   *
-   * @param PinLedger $pinLedger
-   * @return Response
-   */
-  public function edit(PinLedger $pinLedger)
-  {
-    //
-  }
-
-  /**
-   * Update the specified resource in storage.
-   *
-   * @param Request $request
-   * @param PinLedger $pinLedger
-   * @return Response
-   */
-  public function update(Request $request, PinLedger $pinLedger)
-  {
-    //
-  }
-
-  /**
-   * Remove the specified resource from storage.
-   *
-   * @param PinLedger $pinLedger
-   * @return Response
-   */
-  public function destroy(PinLedger $pinLedger)
-  {
-    //
   }
 }

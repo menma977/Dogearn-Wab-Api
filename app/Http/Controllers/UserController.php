@@ -99,7 +99,7 @@ class UserController extends Controller
       while (true) {
         $sponsorLine .= " -> " . $sponsor->email;
 
-        if ($sponsor->role === 1) {
+        if ($sponsor->role == 1) {
           break;
         }
 
@@ -107,7 +107,7 @@ class UserController extends Controller
         $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
       }
 
-      if ($user->role === 2) {
+      if ($user->role == 2) {
         $sponsor = User::find(Binary::where('down_line', $user->id)->first()->sponsor)->phone;
       } else {
         $sponsor = $user->phone;
@@ -186,5 +186,39 @@ class UserController extends Controller
     $user->save();
 
     return redirect()->back();
+  }
+
+  /**
+   * @param $id
+   * @return GradeHistory
+   */
+  public function lotList($id)
+  {
+    $gradeHistory = GradeHistory::where('user_id', $id)->take(50)->orderBy('id', 'desc')->get();
+    $gradeHistory->map(function ($item) {
+      if ($item->user_id == 0) {
+        $item->email = "Network Fee";
+      } else {
+        $item->email = User::find($item->user_id)->email;
+      }
+
+      $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
+    });
+
+    return $gradeHistory;
+  }
+
+  /**
+   * @param $id
+   * @return GradeHistory
+   */
+  public function pinList($id)
+  {
+    $pinLedgers = PinLedger::where('user_id', $id)->take(50)->orderBy('id', 'desc')->get();
+    $pinLedgers->map(function ($item) {
+      $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
+    });
+
+    return $pinLedgers;
   }
 }

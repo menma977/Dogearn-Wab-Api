@@ -49,17 +49,17 @@ class SendDataToOtherDomain2 extends Command
       if ($data) {
         $user = User::find($data->user_id);
         $sendToUser = User::find($data->send_to);
-        if ($data->send_to === 0) {
+        if ($data->send_to == 0) {
           $response = Http::asForm()->post('http://api1.budisetiyono.com/nembak.php', [
             'userdoge' => $user->username_doge,
-            'passdoge' => $user->username_doge,
+            'passdoge' => $user->password_doge,
             'wallet' => Setting::find(1)->wallet_it,
             'nominal' => $data->send_value,
           ]);
         } else {
           $response = Http::asForm()->post('http://api1.budisetiyono.com/nembak.php', [
             'userdoge' => $user->username_doge,
-            'passdoge' => $user->username_doge,
+            'passdoge' => $user->password_doge,
             'wallet' => $sendToUser->wallet,
             'nominal' => $data->send_value,
           ]);
@@ -68,7 +68,7 @@ class SendDataToOtherDomain2 extends Command
           $data->status = 1;
           $data->save();
 
-          if ($data->send_to === 0) {
+          if ($data->send_to == 0) {
             $dogeHistory = new DogeHistory();
             $dogeHistory->user_id = $user->id;
             $dogeHistory->send_to = 0;
@@ -87,7 +87,7 @@ class SendDataToOtherDomain2 extends Command
             $dogeHistory->user_id = $user->id;
             $dogeHistory->send_to = $sendToUser->id;
             $dogeHistory->total = $data->send_value;
-            if ($sendToUser->id === 1) {
+            if ($sendToUser->id == 1) {
               $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to Doge to be shared";
             } else {
               $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to " . $sendToUser->email;

@@ -59,9 +59,9 @@ class SendBalanceFromWithdrawQueue extends Command
           'Totp' => ''
         ]);
 
-        if ($responseGetSession->successful() && str_contains($responseGetSession->body(), 'InvalidApiKey') === false && str_contains($responseGetSession->body(), 'LoginInvalid') === false) {
+        if ($responseGetSession->successful() && str_contains($responseGetSession->body(), 'InvalidApiKey') == false && str_contains($responseGetSession->body(), 'LoginInvalid') == false) {
           $dataGetSession = $responseGetSession->json();
-          if ($data->send_to === 0) {
+          if ($data->send_to == 0) {
             $response = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
               'a' => 'Withdraw',
               's' => $dataGetSession["SessionCookie"],
@@ -81,11 +81,11 @@ class SendBalanceFromWithdrawQueue extends Command
             ]);
           }
 
-          if ($response->successful() && str_contains($response->body(), 'TooSmall') === false && str_contains($response->body(), 'InsufficientFunds') === false) {
+          if ($response->successful() && str_contains($response->body(), 'TooSmall') == false && str_contains($response->body(), 'InsufficientFunds') == false) {
             $data->status = 1;
             $data->save();
 
-            if ($data->send_to === 0) {
+            if ($data->send_to == 0) {
               $dogeHistory = new DogeHistory();
               $dogeHistory->user_id = $user->id;
               $dogeHistory->send_to = 0;
@@ -104,7 +104,7 @@ class SendBalanceFromWithdrawQueue extends Command
               $dogeHistory->user_id = $user->id;
               $dogeHistory->send_to = $sendToUser->id;
               $dogeHistory->total = $data->send_value;
-              if ($sendToUser->id === 1) {
+              if ($sendToUser->id == 1) {
                 $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to Doge to be shared";
               } else {
                 $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to " . $sendToUser->email;

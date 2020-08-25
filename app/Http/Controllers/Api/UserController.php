@@ -7,6 +7,7 @@ use App\Model\Binary;
 use App\Model\Grade;
 use App\Model\GradeHistory;
 use App\Model\PinLedger;
+use App\Model\Setting;
 use App\Model\Treding;
 use App\Model\WithdrawQueue;
 use App\User;
@@ -23,8 +24,6 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-  protected $androidVersion = 1;
-
   /**
    * get Data
    * @param Request $request
@@ -59,8 +58,24 @@ class UserController extends Controller
   {
     $data = [
       'isLogin' => Auth::check(),
-      'version' => $this->androidVersion,
+      'version' => Setting::find(1)->app_version,
       'isUserWin' => '0',
+    ];
+
+    return response()->json($data, 200);
+  }
+
+  /**
+   * get Data
+   */
+  public function getDataLogin()
+  {
+    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
+
+    $data = [
+      'isLogin' => Auth::check(),
+      'version' => Setting::find(1)->app_version,
+      'isUserWin' => $isUserWinPlayingBot,
     ];
 
     return response()->json($data, 200);
@@ -97,22 +112,6 @@ class UserController extends Controller
   }
 
   /**
-   * get Data
-   */
-  public function getDataLogin()
-  {
-    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
-
-    $data = [
-      'isLogin' => Auth::check(),
-      'version' => $this->androidVersion,
-      'isUserWin' => $isUserWinPlayingBot,
-    ];
-
-    return response()->json($data, 200);
-  }
-
-  /**
    * @param Request $request
    * @return JsonResponse
    * @throws ValidationException
@@ -125,12 +124,12 @@ class UserController extends Controller
     ]);
     $type = filter_var($request->phone, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
     if (Auth::attempt([$type => request('phone'), 'password' => request('password')])) {
-      if (!Auth::user()->tokens->where('expires_at', now())->count()) {
+      if (Auth::user()->tokens->where('expires_at', '!=', now())->count() == 0) {
         foreach (Auth::user()->tokens as $key => $value) {
           $value->revoke();
         }
         $user = Auth::user();
-        if (($user !== null) && $user->suspand === 1) {
+        if (($user !== null) && $user->suspand == 1) {
           $data = [
             'message' => 'The given data was invalid.',
             'errors' => [
@@ -140,12 +139,19 @@ class UserController extends Controller
           return response()->json($data, 500);
         }
 
-        if (($user !== null) && $user->status === 0) {
+        if (($user !== null) && $user->status == 0) {
           $data = [
             'message' => 'The given data was invalid.',
             'errors' => [
               'warning' => ['please confirm your email first.'],
             ],
+          ];
+          return response()->json($data, 500);
+        }
+
+        if (($user !== null) && Setting::find(1)->maintenance == 1) {
+          $data = [
+            'message' => 'Under Maintenance.',
           ];
           return response()->json($data, 500);
         }
@@ -162,7 +168,7 @@ class UserController extends Controller
       }
 
       $data = [
-        'message' => 'you are already logged in on another cellphone, please log out first or wait until 2 hours.',
+        'message' => 'you are already logged in on another cellphone, please log out first.',
       ];
       return response()->json($data, 500);
     }
@@ -211,7 +217,7 @@ class UserController extends Controller
     ]);
 
     $sponsor = User::where($type, $request->sponsor)->first();
-    if ($sponsor->status === 2) {
+    if ($sponsor->status == 2) {
       $responseCreateAccount = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
         'a' => 'CreateAccount',
         'Key' => '1b4755ced78e4d91bce9128b9a053cad',
@@ -250,7 +256,7 @@ class UserController extends Controller
 
         if ($responseCreateUser->successful()) {
           try {
-            if ($responseCreateUser->json()['success'] === 1) {
+            if ($responseCreateUser->json()['success'] == 1) {
               $user->username_doge = $usernameDoge;
               $user->password_doge = $passwordDoge;
               $user->status = 0;
@@ -345,7 +351,7 @@ class UserController extends Controller
     $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
     $onQueue = WithdrawQueue::where('user_id', Auth::user()->id)->where('status', 0)->count();
 
-    if (Auth::user()->role === 2) {
+    if (Auth::user()->role == 2) {
       $sponsor = User::find(Binary::where('down_line', Auth::user()->id)->first()->sponsor)->phone;
     } else {
       $sponsor = Auth::user()->phone;

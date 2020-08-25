@@ -119,8 +119,7 @@
     </div>
 
     <div class="row">
-      <div class="col-md-3">
-
+      <div class="col-md-5">
         <div class="card card-primary card-outline">
           <div class="card-body box-profile">
             <div class="text-center">
@@ -148,13 +147,52 @@
                 </a>
               </li>
             </ul>
-
             <a href="#" class="btn btn-primary btn-block" data-toggle="modal" data-target="#modal-primary"><b>Edit</b></a>
+          </div>
+        </div>
+
+        <div class="card card-outline card-primary">
+          <div class="card-header">
+            <h3 class="card-title">History LOT</h3>
+          </div>
+          <div class="card-body table-responsive">
+            <table id="tableLot" class="table table-striped text-center" style="width: 100%">
+              <thead>
+              <tr>
+                <th style="width: 20px">ID</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Date</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card card-outline card-primary">
+          <div class="card-header">
+            <h3 class="card-title">History Pin</h3>
+          </div>
+          <div class="card-body table-responsive">
+            <table id="tablePin" class="table table-striped text-center" style="width: 100%">
+              <thead>
+              <tr>
+                <th style="width: 20px">ID</th>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Date</th>
+              </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      <div class="col-md-9">
+      <div class="col-md-7">
         <div class="card">
           <div class="card-header p-2">
             <h3 class="card-title">Data User</h3>
@@ -168,12 +206,12 @@
                     {{ $sponsorLine }}
                   </p>
                 </div>
-                <div class="post">
+                <div class="post table-responsive">
                   <h5>Gets a list of deposits or incoming transfers</h5>
                   <a id="loadDeposit" class="btn btn-app">
                     <i class="fas fa-redo"></i> Refresh
                   </a>
-                  <table id="tableDeposit" class="table table-striped text-center">
+                  <table id="tableDeposit" class="table table-striped text-center" style="width: 100%">
                     <thead>
                     <tr>
                       <th style="width: 20px">Currency</th>
@@ -186,12 +224,12 @@
                     </tbody>
                   </table>
                 </div>
-                <div class="post">
+                <div class="post table-responsive">
                   <h5>Gets a list of withdrawals or outgoing transfers</h5>
                   <a id="loadWithdraw" class="btn btn-app">
                     <i class="fas fa-redo"></i> Refresh
                   </a>
-                  <table id="tableWithdraw" class="table table-striped text-center">
+                  <table id="tableWithdraw" class="table table-striped text-center" style="width: 100%">
                     <thead>
                     <tr>
                       <th style="width: 20px">Currency</th>
@@ -251,8 +289,33 @@
       "autoWidth": true,
       "responsive": true,
     });
+    let tableLot = $('#tableLot').DataTable({
+      "paging": true,
+      "lengthChange": true,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": true,
+      "responsive": true,
+    });
+    let tablePin = $('#tablePin').DataTable({
+      "paging": true,
+      "lengthChange": true,
+      "searching": false,
+      "ordering": true,
+      "info": true,
+      "autoWidth": true,
+      "responsive": true,
+    });
 
     $(function () {
+      setLot()
+      setPin()
+      setInterval(function () {
+        setLot()
+        setPin()
+      }, 30000);
+
       $("#getBalance").click(function () {
         getBalance();
       });
@@ -399,6 +462,75 @@
         }
       }).catch(error => {
         toastr.error(error);
+      });
+    }
+
+    function setLot() {
+      let url = "{{ route('user.lotList', $user->id) }}";
+      fetch(url, {
+        method: 'GET',
+        headers: new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded',
+          "X-CSRF-TOKEN": $("input[name='_token']").val()
+        }),
+      }).then((response) => response.json()).then((data) => {
+        tableLot.clear().draw();
+        for (let i = 0; i < data.length; i++) {
+          let debit = data[i].debit;
+          let credit = data[i].credit;
+          let level = data[i].upgrade_level;
+
+          let description = ""
+          let balance = ""
+          if (debit == 0) {
+            description = data[i].email + " Send: " + credit / 100000000 + " DOGE. Upgrade Level" + level;
+            balance = "-" + credit / 100000000 + " DOGE"
+          } else {
+            description = data[i].email + " Send: " + debit / 100000000 + " DOGE. Upgrade Level" + level;
+            balance = "+" + debit / 100000000 + " DOGE"
+          }
+          let date = data[i].date;
+          let id = i + 1 + ".";
+          tableLot.row.add([
+            id,
+            description,
+            balance,
+            date
+          ]).draw();
+        }
+      });
+    }
+
+    function setPin() {
+      let url = "{{ route('user.pinList', $user->id) }}";
+      fetch(url, {
+        method: 'GET',
+        headers: new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded',
+          "X-CSRF-TOKEN": $("input[name='_token']").val()
+        }),
+      }).then((response) => response.json()).then((data) => {
+        tablePin.clear().draw();
+        console.log(data)
+        for (let i = 0; i < data.length; i++) {
+          let debit = data[i].debit;
+          let credit = data[i].credit;
+
+          let balance = ""
+          if (debit == 0) {
+            balance = "-" + credit;
+          } else {
+            balance = "+" + debit;
+          }
+          let date = data[i].date;
+          let id = i + 1 + ".";
+          tablePin.row.add([
+            id,
+            data[i].description,
+            balance,
+            date
+          ]).draw();
+        }
       });
     }
   </script>

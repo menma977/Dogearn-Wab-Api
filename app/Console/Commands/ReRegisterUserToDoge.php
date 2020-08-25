@@ -61,7 +61,7 @@ class ReRegisterUserToDoge extends Command
             'Password' => $passwordDoge,
           ]);
 
-          if ($responseCreateUser->successful() && $responseCreateUser->json()['success'] === 1) {
+          if ($responseCreateUser->successful() && $responseCreateUser->json()['success'] == 1) {
             $user->username_doge = $usernameDoge;
             $user->password_doge = $passwordDoge;
             $user->status = 0;

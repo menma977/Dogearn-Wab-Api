@@ -42,6 +42,8 @@ Route::middleware('auth')->group(static function () {
     Route::post('/update/password/{id}', 'UserController@updatePassword')->name('updatePassword');
     Route::post('/update/secondary/password/{id}', 'UserController@updateSecondaryPassword')->name('updateSecondaryPassword');
     Route::post('/update/phone/{id}', 'UserController@updatePhone')->name('updatePhone');
+    Route::get('/lot/{id}', 'UserController@lotList')->name('lotList');
+    Route::get('/pin/{id}', 'UserController@pinList')->name('pinList');
   });
 
   Route::group(['prefix' => 'pin', 'as' => 'pin.'], static function () {
@@ -66,5 +68,13 @@ Route::middleware('auth')->group(static function () {
     Route::post('/store', 'LevelController@store')->name('store');
     Route::post('/update/{id}', 'LevelController@update')->name('update');
     Route::get('/delete/{id}', 'LevelController@destroy')->name('delete');
+  });
+
+  Route::group(['prefix' => 'setting', 'as' => 'setting.'], static function () {
+    Route::get('/', 'SettingController@index')->name('index');
+    Route::post('/update/wallet/it', 'SettingController@updateIt')->name('updateIt');
+    Route::post('/update/fee', 'SettingController@fee')->name('fee');
+    Route::post('/update/app', 'SettingController@app')->name('app');
+    Route::get('/shot/down/{status}', 'SettingController@shotDown')->name('shotDown');
   });
 });

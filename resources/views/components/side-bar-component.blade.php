@@ -69,6 +69,14 @@
           </a>
         </li>
         <li class="nav-item">
+          <a href="{{ route('setting.index') }}" class="nav-link {{ request()->is(['setting', 'setting/*']) ? 'active' : '' }}">
+            <i class="nav-icon fa fa-cogs"></i>
+            <p>
+              Setting
+            </p>
+          </a>
+        </li>
+        <li class="nav-item">
           <a href="{{ route('logout') }}" onclick="event.preventDefault();document.getElementById('logout-form').submit();" class="nav-link">
             <i class="nav-icon fas fa-power-off"></i>
             <p>

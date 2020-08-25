@@ -3,7 +3,6 @@
 namespace App\Model;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Setting
@@ -11,6 +10,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property integer maintenance
  * @property integer type_withdraw
  * @property integer wallet_it
+ * @property double fee
+ * @property integer app_version
  */
 class Setting extends Model
 {
@@ -23,5 +24,7 @@ class Setting extends Model
     'maintenance',
     'type_withdraw',
     'wallet_it',
+    'fee',
+    'app_version'
   ];
 }
