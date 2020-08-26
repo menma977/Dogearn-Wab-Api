@@ -32,8 +32,9 @@ class GradeHistoryController extends Controller
       if ($item->user_id == 0) {
         $item->email = "Network Fee";
       } else {
-        $item->email = User::find($item->user_id)->email;
+        $item->email = User::find($item->user_id)->wallet;
       }
+      $item->emailTarget = User::find($item->target)->wallet;
 
       $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
     });

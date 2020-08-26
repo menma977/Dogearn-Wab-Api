@@ -78,6 +78,7 @@ class SendDataToOtherDomain1 extends Command
 
             $grade = new GradeHistory();
             $grade->user_id = 0;
+            $grade->target = 0;
             $grade->debit = 0;
             $grade->credit = $data->send_value;
             $grade->upgrade_level = 0;
@@ -96,6 +97,7 @@ class SendDataToOtherDomain1 extends Command
 
             $grade = new GradeHistory();
             $grade->user_id = $sendToUser->id;
+            $grade->target = $user->id;
             $grade->debit = 0;
             $grade->credit = $data->send_value;
             $grade->upgrade_level = $sendToUser->level;

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Class Grade_history
  * @package App\Model
  * @property integer user_id
+ * @property integer target
  * @property integer debit
  * @property integer credit
  * @property integer upgrade_level
@@ -24,6 +25,7 @@ class GradeHistory extends Model
    */
   protected $fillable = [
     'user_id',
+    'target',
     'debit',
     'credit',
     'upgrade_level',

@@ -16,6 +16,7 @@ class CreateGradeHistoriesTable extends Migration
     Schema::create('grade_histories', function (Blueprint $table) {
       $table->id();
       $table->integer('user_id');
+      $table->integer('target');
       $table->bigInteger('debit');
       $table->bigInteger('credit');
       $table->integer('upgrade_level');
