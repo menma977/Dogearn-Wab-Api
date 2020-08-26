@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDogeHistoriesTable extends Migration
+class CreateAdminWalletsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,11 @@ class CreateDogeHistoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('doge_histories', function (Blueprint $table) {
+        Schema::create('admin_wallets', function (Blueprint $table) {
             $table->id();
-            $table->integer('user_id');
-            $table->text('description');
-            $table->integer('send_to');
-            $table->text('total');
-            $table->integer('type')->default(1);
+            $table->string('wallet');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -31,6 +28,6 @@ class CreateDogeHistoriesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('doge_histories');
+        Schema::dropIfExists('admin_wallets');
     }
 }

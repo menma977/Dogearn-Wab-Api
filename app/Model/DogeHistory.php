@@ -12,19 +12,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string description
  * @property integer send_to
  * @property string total
+ * @property integer type
  */
 class DogeHistory extends Model
 {
 
-  /**
-   * The attributes that are mass assignable.
-   *
-   * @var array
-   */
-  protected $fillable = [
-    'user_id',
-    'description',
-    'send_to',
-    'total',
-  ];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'user_id',
+        'description',
+        'send_to',
+        'total',
+        'type',
+    ];
 }

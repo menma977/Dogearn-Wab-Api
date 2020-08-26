@@ -13,21 +13,23 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property integer debit
  * @property integer credit
  * @property integer upgrade_level
+ * @property integer type
  */
 class GradeHistory extends Model
 {
-  use SoftDeletes;
+    use SoftDeletes;
 
-  /**
-   * The attributes that are mass assignable.
-   *
-   * @var array
-   */
-  protected $fillable = [
-    'user_id',
-    'target',
-    'debit',
-    'credit',
-    'upgrade_level',
-  ];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'user_id',
+        'target',
+        'debit',
+        'credit',
+        'upgrade_level',
+        'type',
+    ];
 }

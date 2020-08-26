@@ -12,19 +12,21 @@ use Illuminate\Database\Eloquent\Model;
  * @property string send_value
  * @property string total
  * @property string status
+ * @property integer type
  */
 class WithdrawQueue extends Model
 {
-  /**
-   * The attributes that are mass assignable.
-   *
-   * @var array
-   */
-  protected $fillable = [
-    'user_id',
-    'send_to',
-    'send_value',
-    'total',
-    'status'
-  ];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'user_id',
+        'send_to',
+        'send_value',
+        'total',
+        'status',
+        'type',
+    ];
 }
