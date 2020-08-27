@@ -32,6 +32,10 @@ Auth::routes(['register' => false]);
 
 Route::middleware('auth')->group(static function () {
   Route::get('/home', 'HomeController@index')->name('home');
+  Route::get('/total/user', 'HomeController@totalUser')->name('totalUser');
+  Route::get('/online/user', 'HomeController@onlineUser')->name('onlineUser');
+  Route::get('/new/user', 'HomeController@newUser')->name('newUser');
+  Route::get('/total/upgrade', 'HomeController@totalUpgrade')->name('totalUpgrade');
 
   Route::group(['prefix' => 'user', 'as' => 'user.'], static function () {
     Route::get('/', 'UserController@index')->name('index');
@@ -44,6 +48,7 @@ Route::middleware('auth')->group(static function () {
     Route::post('/update/phone/{id}', 'UserController@updatePhone')->name('updatePhone');
     Route::get('/lot/{id}', 'UserController@lotList')->name('lotList');
     Route::get('/pin/{id}', 'UserController@pinList')->name('pinList');
+    Route::get('/delete/session/{id}', 'UserController@logoutSession')->name('logoutSession');
   });
 
   Route::group(['prefix' => 'pin', 'as' => 'pin.'], static function () {

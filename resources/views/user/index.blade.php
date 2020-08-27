@@ -36,6 +36,7 @@
           <th>Username DOGE</th>
           <th>Password DOGE</th>
           <th>Date</th>
+          <th>Delete Session</th>
         </tr>
         </thead>
         <tbody class="text-center">
@@ -103,6 +104,11 @@
             </td>
             <td>
               {{ \Carbon\Carbon::parse($item->created_at)->format('d-M-Y H:i:s') }}
+            </td>
+            <td>
+              <a href="{{ route('user.logoutSession', $item->id) }}">
+                <button type="button" class="btn btn-block btn-danger btn-xs">Delete Session</button>
+              </a>
             </td>
           </tr>
         @endforeach

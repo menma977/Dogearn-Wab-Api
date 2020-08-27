@@ -13,7 +13,7 @@ class DeleteWithdrawQueuesIfDone extends Command
    *
    * @var string
    */
-  protected $signature = 'daily:deleteWithdrawQueuesIfDone';
+  protected $signature = 'hourly:deleteWithdrawQueuesIfDone';
 
   /**
    * The console command description.

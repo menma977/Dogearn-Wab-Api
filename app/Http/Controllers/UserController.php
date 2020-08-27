@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -220,5 +221,14 @@ class UserController extends Controller
     });
 
     return $pinLedgers;
+  }
+
+  /**
+   * @param $id
+   */
+  public function logoutSession($id) {
+    DB::table('oauth_access_tokens')->where('user_id', $id)->delete();
+
+    return redirect()->back();
   }
 }
