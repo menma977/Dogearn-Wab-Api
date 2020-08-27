@@ -142,7 +142,7 @@ class GradeHistoryController extends Controller
             if ($sumPin) {
                 $user = User::find(Auth::user()->id);
                 $getGradeById = Grade::find($request->grade);
-                if ($sumPin >= $getGradeById->pin && $request->balance > $getGradeById->price) {
+                if ($sumPin >= $getGradeById->pin && $request->balance >= $getGradeById->price) {
                     $gradeHistoryList = GradeHistory::where('user_id', $user->id)->get();
                     $grade = new GradeHistory();
                     $grade->user_id = Auth::user()->id;
