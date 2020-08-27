@@ -118,7 +118,7 @@ class SendDataToOtherDomain2 extends Command
                         $grade->target = $user->id;
                         $grade->debit = 0;
                         $grade->credit = $data->send_value;
-                        $grade->upgrade_level = 0;
+                        $grade->upgrade_level = $sendToUser->level;
                         $grade->save();
                     }
 

@@ -32,12 +32,14 @@ class GradeHistoryController extends Controller
         $gradeHistory->map(function ($item) {
             if ($item->user_id == 0) {
                 $item->email = "Network Fee";
+            } else if($item->type == 2){
+                $item->email = AdminWallet::find($item->user_id)->wallet;
             } else {
                 $item->email = User::find($item->user_id)->wallet;
             }
 
-            if ($item->type == 2) {
-                $item->emailTarget = AdminWallet::find($item->target)->wallet;
+            if ($item->target == 0) {
+                $item->emailTarget = "Network Fee";
             } else {
                 $item->emailTarget = User::find($item->target)->wallet;
             }
@@ -72,19 +74,11 @@ class GradeHistoryController extends Controller
         $dataQueue = array();
         $binaries = Binary::where('down_line', Auth::user()->id)->first();
 
-        $itTotalValue = $grade->price * Setting::find(1)->fee / 100;
-        $dataList = [
-            'user' => "Network Fee",
-            'value' => $grade->price * Setting::find(1)->fee / 100,
-        ];
-        $totalValue -= $itTotalValue;
-        array_push($dataQueue, $dataList);
-
         $levels = 1;
         if ($binaries) {
             $sponsor = User::find($binaries->sponsor);
             while (true) {
-                if ($sponsor->id == 1 || $levels == 7) {
+                if ($sponsor->id == 1 || $levels > 7) {
                     break;
                 }
 
@@ -103,6 +97,14 @@ class GradeHistoryController extends Controller
                 $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
             }
         }
+
+        $itTotalValue = $grade->price * Setting::find(1)->fee / 100;
+        $dataList = [
+            'user' => "Network Fee",
+            'value' => $grade->price * Setting::find(1)->fee / 100,
+        ];
+        $totalValue -= $itTotalValue;
+        array_push($dataQueue, $dataList);
 
         $AdminRandom = AdminWallet::all()->random(1)->first();
 
@@ -177,9 +179,9 @@ class GradeHistoryController extends Controller
                     $withdrawQueue->save();
 
                     if ($binaries) {
-                        $sponsor = User::find($binaries->id);
+                        $sponsor = User::find($binaries->sponsor);
                         while (true) {
-                            if ($sponsor->id == 1 || $levels == 7) {
+                            if ($sponsor->id == 1 || $levels > 7) {
                                 break;
                             }
 

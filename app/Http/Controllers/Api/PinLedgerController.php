@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Model\PinLedger;
+use App\Model\Binary;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -26,8 +27,44 @@ class PinLedgerController extends Controller
       $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
     });
 
+    $arrayWallet = array();
+
+    $binaries = Binary::where('down_line', Auth::user()->id)->first();
+    if($binaries) {
+        $sponsor = User::find($binaries->sponsor);
+        while(true) {
+            if ($sponsor->id == 1) {
+                break;
+            }
+            $dataList = [
+                'wallet' => $sponsor->wallet,
+            ];
+            array_push($arrayWallet, $dataList);
+            $oldSponsor = $sponsor->id;
+            $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
+        }
+    }
+
+    $binaries = Binary::where('sponsor', Auth::user()->id)->first();
+    if($binaries) {
+        $down_line = User::find($binaries->down_line);
+        while(true) {
+            $dataList = [
+                'wallet' => $down_line->wallet,
+            ];
+            array_push($arrayWallet, $dataList);
+            $old_down_line = $down_line->id;
+            if(Binary::where('sponsor', $old_down_line)->first()) {
+                $down_line = User::find(Binary::where('sponsor', $old_down_line)->first()->down_line);
+            } else {
+                break;
+            }
+        }
+    }
+
     $data = [
-      'pinLedgers' => $pinLedgers
+      'pinLedgers' => $pinLedgers,
+      'walletList' => $arrayWallet
     ];
 
     return response()->json($data, 200);

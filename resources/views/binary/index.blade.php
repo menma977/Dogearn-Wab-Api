@@ -25,7 +25,7 @@
     <ul class="tree">
       <li>
         <div class="fa fa-minus-circle" style="min-width: 200px">
-          {{ Auth::user()->email }}
+          {{ Auth::user()->email }} <i class="fa fa-trophy text-danger" style="font-size: 10px;">{{ Auth::user()->level }}</i>
         </div>
         <ul class="nested">
           @foreach ($binary as $item)
@@ -33,7 +33,7 @@
               <li>
                 <a href="#" id="caret-{{ $item->down_line }}" class="fa fa-plus-circle" onclick="addCaret('{{ $item->down_line }}')" style="min-width: 200px">
                   @if ($item->userDownLine)
-                    {{ $item->userDownLine->email }}
+                    {{ $item->userDownLine->email }} <i class="fa fa-trophy text-danger" style="font-size: 10px;">{{ $item->userDownLine->level }}</i>
                   @endif
                 </a>
                 <div id="{{ $item->down_line }}"></div>
@@ -110,6 +110,9 @@
                 + element.down_line
                 + '" class="fa fa-plus-circle" onclick="addCaret(`%data%`)" style="min-width: 200px"> '
                 + element.userDownLine.email
+                + '<i class="fa fa-trophy text-danger" style="font-size: 10px;">'
+                + element.userDownLine.level
+                +'</i>'
                 + '</a> <div id="'
                 + element.down_line + '"></div>'
                 + '</li>';
