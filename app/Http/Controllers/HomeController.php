@@ -47,8 +47,6 @@ class HomeController extends Controller
       'data' => $dataUser
     ];
 
-    dump($data);
-
     return view('onlineUser', $data);
   }
 

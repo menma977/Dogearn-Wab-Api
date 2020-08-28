@@ -26,6 +26,23 @@ class UserController extends Controller
 {
   /**
    * @param $email
+   * @return Application|RedirectResponse|Redirector|void
+   */
+  public function indexRef($email)
+  {
+    $user = User::where('email', $email)->first();
+    if ($user) {
+      $data = [
+        'phone' => $user->phone
+      ];
+      return view('welcome', $data);
+    }
+
+    return abort(500);
+  }
+
+  /**
+   * @param $email
    * @param $password
    * @return Application|RedirectResponse|Redirector
    */
@@ -226,7 +243,8 @@ class UserController extends Controller
   /**
    * @param $id
    */
-  public function logoutSession($id) {
+  public function logoutSession($id)
+  {
     DB::table('oauth_access_tokens')->where('user_id', $id)->delete();
 
     return redirect()->back();
