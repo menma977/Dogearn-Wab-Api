@@ -28,7 +28,7 @@ Route::get('/success', function () {
 
 Route::get('/confirmation/{email}/{password}', 'UserController@indexConfirmation')->name('indexConfirmation');
 
-Route::get('/{email}', 'UserController@indexRef')->name('indexRef');
+Route::get('/ref/{email}', 'UserController@indexRef')->name('indexRef');
 
 Auth::routes(['register' => false]);
 
