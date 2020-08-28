@@ -3,7 +3,7 @@
 @section('title')
   <div class="row mb-2">
     <div class="col-sm-6">
-      <h1>{{ $user->email }}</h1>
+      <h5>{{ $user->email }}</h5>
     </div>
     <div class="col-sm-6">
       <ol class="breadcrumb float-sm-right">
@@ -132,7 +132,10 @@
 
             <ul class="list-group list-group-unbordered mb-3">
               <li class="list-group-item">
-                <b>Grade</b> <a class="float-right">Grade {{ $grade ? $grade->id : 0 }}</a>
+                <b>Wallet</b> <a class="float-right">LOT {{ $user->wallet }}</a>
+              </li>
+              <li class="list-group-item">
+                <b>LOT</b> <a class="float-right">LOT {{ $grade ? $grade->id : 0 }}</a>
               </li>
               <li class="list-group-item">
                 <b>Pin</b> <a class="float-right">{{ $pin }}</a>
@@ -145,6 +148,15 @@
                 <a class="float-right">
                   <button id="getBalance" type="button" class="btn btn-block btn-primary btn-xs">Click To Check</button>
                 </a>
+              </li>
+              <li class="list-group-item">
+                <div class="progress">
+                  <div class="progress-bar bg-primary progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
+                       style="width: {{ ($gradeTarget - $progressGrade) / 1000000000000000 }}%">
+                  </div>
+                </div>
+                <b style="font-size: 12px">{{ number_format($progressGrade / 100000000, 8, '.', '') }} DOGE</b>
+                <b class="float-right" style="font-size: 12px">{{ number_format($gradeTarget / 100000000, 8, '.', '') }} DOGE</b>
               </li>
             </ul>
             <a href="#" class="btn btn-primary btn-block" data-toggle="modal" data-target="#modal-primary"><b>Edit</b></a>
@@ -311,10 +323,6 @@
     $(function () {
       setLot()
       setPin()
-      setInterval(function () {
-        setLot()
-        setPin()
-      }, 30000);
 
       $("#getBalance").click(function () {
         getBalance();

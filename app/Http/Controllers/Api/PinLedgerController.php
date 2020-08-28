@@ -30,36 +30,43 @@ class PinLedgerController extends Controller
     $arrayWallet = array();
 
     $binaries = Binary::where('down_line', Auth::user()->id)->first();
-    if($binaries) {
-        $sponsor = User::find($binaries->sponsor);
-        while(true) {
-            if ($sponsor->id == 1) {
-                break;
-            }
-            $dataList = [
-                'wallet' => $sponsor->wallet,
-            ];
-            array_push($arrayWallet, $dataList);
-            $oldSponsor = $sponsor->id;
-            $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
+    if ($binaries) {
+      $sponsor = User::find($binaries->sponsor);
+      while (true) {
+        if ($sponsor->id == 1) {
+          break;
         }
+        $dataList = [
+          'wallet' => $sponsor->wallet,
+        ];
+        array_push($arrayWallet, $dataList);
+        $oldSponsor = $sponsor->id;
+        $sponsor = User::find(Binary::where('down_line', $oldSponsor)->first()->sponsor);
+      }
     }
 
-    $binaries = Binary::where('sponsor', Auth::user()->id)->first();
-    if($binaries) {
-        $down_line = User::find($binaries->down_line);
-        while(true) {
-            $dataList = [
-                'wallet' => $down_line->wallet,
-            ];
-            array_push($arrayWallet, $dataList);
-            $old_down_line = $down_line->id;
-            if(Binary::where('sponsor', $old_down_line)->first()) {
-                $down_line = User::find(Binary::where('sponsor', $old_down_line)->first()->down_line);
-            } else {
-                break;
-            }
+    $idDownLine = array();
+    $binaries = Binary::where('sponsor', Auth::user()->id)->get();
+    if ($binaries->count()) {
+      while (true) {
+        foreach ($binaries as $item) {
+          $down_line = User::find($item->down_line);
+          $dataList = [
+            'wallet' => $down_line->wallet,
+          ];
+          array_push($arrayWallet, $dataList);
+          $listId = [
+            'id' => $down_line->id
+          ];
+          array_push($idDownLine, $listId);
         }
+        $binaries = Binary::where('sponsor', reset($idDownLine))->get();
+        array_shift($idDownLine);
+
+        if (count($idDownLine) == 0) {
+          break;
+        }
+      }
     }
 
     $data = [

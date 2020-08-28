@@ -30,7 +30,7 @@
           <th>Phone</th>
           <th>Password</th>
           <th>Wallet</th>
-          <th>Grade</th>
+          <th>LOT</th>
           <th style="width: 100px">Suspend</th>
           <th style="width: 150px">Status</th>
           <th>Username DOGE</th>

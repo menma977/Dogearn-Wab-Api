@@ -30,7 +30,7 @@
         </li>
         <li class="nav-item">
           <a href="{{ route('user.index') }}" class="nav-link {{ request()->is(['user', 'user/*']) ? 'active' : '' }}">
-            <i class="nav-icon fas fa-user"></i>
+            <i class="nav-icon fas fa-users"></i>
             <p>
               User
             </p>
@@ -38,15 +38,15 @@
         </li>
         <li class="nav-item">
           <a href="{{ route('grade.index') }}" class="nav-link {{ request()->is(['grade', 'grade/*']) ? 'active' : '' }}">
-            <i class="nav-icon fab fa-pinterest"></i>
+            <i class="nav-icon fas fa-trophy"></i>
             <p>
-              Grade
+              LOT
             </p>
           </a>
         </li>
         <li class="nav-item">
           <a href="{{ route('level.index') }}" class="nav-link {{ request()->is(['level', 'level/*']) ? 'active' : '' }}">
-            <i class="nav-icon fab fa-pinterest"></i>
+            <i class="nav-icon fas fa-stream"></i>
             <p>
               Level
             </p>

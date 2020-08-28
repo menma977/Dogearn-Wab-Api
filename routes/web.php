@@ -32,10 +32,18 @@ Auth::routes(['register' => false]);
 
 Route::middleware('auth')->group(static function () {
   Route::get('/home', 'HomeController@index')->name('home');
+
+  Route::get('/total/user/view', 'HomeController@totalUserView')->name('totalUserView');
+  Route::get('/online/user/view', 'HomeController@onlineUserView')->name('onlineUserView');
+  Route::get('/new/user/view', 'HomeController@newUserView')->name('newUserView');
+  Route::get('/total/upgrade/view', 'HomeController@totalUpgradeView')->name('totalUpgradeView');
+  Route::get('/new/user/not/verified/view', 'HomeController@newUserNotVerifiedView')->name('newUserNotVerifiedView');
+
   Route::get('/total/user', 'HomeController@totalUser')->name('totalUser');
   Route::get('/online/user', 'HomeController@onlineUser')->name('onlineUser');
   Route::get('/new/user', 'HomeController@newUser')->name('newUser');
   Route::get('/total/upgrade', 'HomeController@totalUpgrade')->name('totalUpgrade');
+  Route::get('/new/user/not/verified', 'HomeController@newUserNotVerified')->name('newUserNotVerified');
 
   Route::group(['prefix' => 'user', 'as' => 'user.'], static function () {
     Route::get('/', 'UserController@index')->name('index');

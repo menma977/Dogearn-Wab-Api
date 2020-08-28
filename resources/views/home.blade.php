@@ -22,9 +22,9 @@
           <p>Total User</p>
         </div>
         <div class="icon">
-          <i class="fas fa-shopping-cart"></i>
+          <i class="fas fa-users"></i>
         </div>
-        <a href="#" class="small-box-footer">
+        <a href="{{ route('user.index') }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
@@ -36,9 +36,9 @@
           <p>Online Users</p>
         </div>
         <div class="icon">
-          <i class="fas fa-shopping-cart"></i>
+          <i class="fas fa-street-view"></i>
         </div>
-        <a href="#" class="small-box-footer">
+        <a href="{{ route('onlineUserView') }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
@@ -50,9 +50,10 @@
           <p>New User Today</p>
         </div>
         <div class="icon">
-          <i class="fas fa-shopping-cart"></i>
+          <i class="fas fa-user-plus"></i>
+
         </div>
-        <a href="#" class="small-box-footer">
+        <a href="{{ route('newUserView') }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
@@ -64,12 +65,32 @@
           <p>Total LOT Today</p>
         </div>
         <div class="icon">
-          <i class="fas fa-shopping-cart"></i>
+          <i class="fas fa-trophy"></i>
         </div>
-        <a href="#" class="small-box-footer">
+        <a href="{{ route('totalUpgradeView') }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <a href="{{ route('newUserNotVerifiedView') }}">
+        <div class="info-box bg-danger">
+          <span class="info-box-icon"><i class="fas fa-user-clock"></i></span>
+
+          <div class="info-box-content">
+            <span class="info-box-text">User Not Verified</span>
+            <span class="info-box-number" id="userNotVerified">0</span>
+            <div class="progress">
+              <div class="progress-bar" id="userNotVerifiedLine" style="width: 0"></div>
+            </div>
+            <div class="progress-description" id="userNotVerifiedDescription">
+            </div>
+          </div>
+        </div>
+      </a>
     </div>
   </div>
 
@@ -114,6 +135,11 @@
       $('#newUserText').html(await newUser());
       $('#totalUpgradeText').html(await totalUpgrade());
 
+      $('#userNotVerified').html(await newUserNotVerified());
+      $('#userNotVerifiedLine').width((await totalUser() - await newUserNotVerified()) + "%");
+      let description = "user not verified: " + await newUserNotVerified() + " .from total user: " + await totalUser()
+      $('#userNotVerifiedDescription').html(description);
+
       dataUser = [await totalUser() - await onlineUser() - await newUser(), await onlineUser(), await newUser()];
       setChart();
 
@@ -122,6 +148,12 @@
         $('#onlineUserText').html(await onlineUser());
         $('#newUserText').html(await newUser());
         $('#totalUpgradeText').html(await totalUpgrade());
+
+        $('#userNotVerified').html(await newUserNotVerified());
+        $('#userNotVerifiedLine').width((await totalUser() - await newUserNotVerified()) + "%");
+        let description = "user not verified: " + await newUserNotVerified() + " .from total user: " + await totalUser()
+        $('#userNotVerifiedDescription').html(description);
+
         dataUser = [await totalUser() - await onlineUser() - await newUser(), await onlineUser(), await newUser()];
         donutChart.data.datasets[0].data = dataUser;
         donutChart.update();
@@ -166,6 +198,18 @@
 
     async function totalUpgrade() {
       return await fetch("{{ route('totalUpgrade') }}", {
+        method: 'GET',
+        headers: new Headers({
+          'Content-Type': 'application/x-www-form-urlencoded',
+          "X-CSRF-TOKEN": $("input[name='_token']").val()
+        }),
+      }).then(async (response) => {
+        return await response.json()
+      });
+    }
+
+    async function newUserNotVerified() {
+      return await fetch("{{ route('newUserNotVerified') }}", {
         method: 'GET',
         headers: new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',

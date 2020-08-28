@@ -120,8 +120,8 @@ class UserController extends Controller
     $data = [
       'user' => $user,
       'grade' => $grade,
-      'gradeTarget' => GradeHistory::where('user_id', Auth::user()->id)->sum("debit"),
-      'progressGrade' => GradeHistory::where('user_id', Auth::user()->id)->sum("credit"),
+      'gradeTarget' => GradeHistory::where('user_id', $id)->sum("debit"),
+      'progressGrade' => GradeHistory::where('user_id', $id)->sum("credit"),
       'pin' => $pin,
       'isUserWin' => $isUserWinPlayingBot,
       'onQueue' => $onQueue,

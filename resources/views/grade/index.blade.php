@@ -3,12 +3,12 @@
 @section('title')
   <div class="row mb-2">
     <div class="col-sm-6">
-      <h1>Grade List</h1>
+      <h1>LOT List</h1>
     </div>
     <div class="col-sm-6">
       <ol class="breadcrumb float-sm-right">
         <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
-        <li class="breadcrumb-item active">Grade List</li>
+        <li class="breadcrumb-item active">LOT List</li>
       </ol>
     </div>
   </div>
@@ -19,7 +19,7 @@
     @csrf
     <div class="card card-outline card-primary collapsed-card">
       <div class="card-header">
-        <h3 class="card-title">Add Grade</h3>
+        <h3 class="card-title">Add LOT</h3>
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
           </button>
@@ -50,7 +50,7 @@
 
   <div class="card">
     <div class="card-header">
-      <h3 class="card-title">List Grade</h3>
+      <h3 class="card-title">List LOT</h3>
     </div>
     <div class="card-body p-0">
       <table class="table table-sm" id="table" style="width: 100%">
@@ -88,7 +88,7 @@
             <div class="modal-dialog">
               <div class="modal-content bg-primary">
                 <div class="modal-header">
-                  <h4 class="modal-title">Edit Grade</h4>
+                  <h4 class="modal-title">Edit LOT</h4>
                   <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <i aria-hidden="true">×</i>
                   </button>
