@@ -39,80 +39,18 @@ class Kernel extends ConsoleKernel
     //cron job
 
     $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-
     $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-
     $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
 
-
     $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-
     $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-
     $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
 
-
     $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-
     $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-
     $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
-
-
-    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
-
-
-    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
-
-
-    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain2')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-    $schedule->command('minute:sendDataToOtherDomain3')->everyMinute()->withoutOverlapping();
-
-    $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendDataToOtherDomain4')->everyMinute()->withoutOverlapping();
   }
 
