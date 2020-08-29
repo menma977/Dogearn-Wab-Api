@@ -156,7 +156,7 @@ class SettingController extends Controller
    */
   public function deleteWallet($id)
   {
-    AdminWallet::find($id)->forceDelete();
+    AdminWallet::destroy($id);
     return redirect()->back();
   }
 }

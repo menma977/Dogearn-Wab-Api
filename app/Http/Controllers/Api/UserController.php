@@ -222,7 +222,7 @@ class UserController extends Controller
         $user->password = Hash::make($request->password);
         $user->password_junk = $request->password;
         $user->transaction_password = Hash::make($request->transaction_password);
-        $user->phone = $request->phone;
+        $user->phone = preg_replace("/^0/", "62", $request->phone);
         $user->account_cookie = $responseCreateAccount->json()['AccountCookie'];
 
         $responseGetWallet = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
