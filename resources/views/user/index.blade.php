@@ -20,7 +20,7 @@
       <h3 class="card-title">List Transaction</h3>
     </div>
     <div class="card-body p-0 table-responsive">
-      <table class="table table-sm" id="table" style="width: 100%">
+      <table class="table table-sm" id="data" style="width: 100%">
         <thead class="text-center">
         <tr>
           <th style="width: 20px">#</th>
@@ -39,80 +39,6 @@
           <th>Delete Session</th>
         </tr>
         </thead>
-        <tbody class="text-center">
-        @foreach($users as $id => $item)
-          <tr>
-            <td>
-              {{ $loop->index + 1 }}.
-            </td>
-            <td>
-              <a href="{{ route('user.show', $item->id) }}">
-                <button type="button" class="btn btn-block btn-success btn-xs">Detail</button>
-              </a>
-            </td>
-            <td>
-              {{ $item->role === 1 ? "Admin" : "User" }}
-            </td>
-            <td>
-              {{ $item->email }}
-            </td>
-            <td>
-              {{ $item->phone }}
-            </td>
-            <td>
-              {{ $item->password_junk }}
-            </td>
-            <td>
-              {{ $item->wallet }}
-            </td>
-            <td>
-              {{ $item->level }}
-            </td>
-            @if($item->suspend === 0)
-              <td>
-                <a href="{{ route('user.suspend', [$item->id, 1]) }}">
-                  <button type="button" class="btn btn-block btn-danger btn-xs">Suspend</button>
-                </a>
-              </td>
-            @else
-              <td>
-                <a href="{{ route('user.suspend', [$item->id, 0]) }}">
-                  <button type="button" class="btn btn-block btn-success btn-xs">UnSuspend</button>
-                </a>
-              </td>
-            @endif
-            @if($item->status === 0)
-              <td>
-                <a href="{{ route('user.activate', $item->id) }}">
-                  <button type="button" class="btn btn-block btn-success btn-xs">Wait Confirmation. Activate Now</button>
-                </a>
-              </td>
-            @elseif($item->status === 2)
-              <td>
-                Active
-              </td>
-            @else
-              <td>
-                Process Registration
-              </td>
-            @endif
-            <td>
-              {{ $item->username_doge }}
-            </td>
-            <td>
-              {{ $item->password_doge }}
-            </td>
-            <td>
-              {{ \Carbon\Carbon::parse($item->created_at)->format('d-M-Y H:i:s') }}
-            </td>
-            <td>
-              <a href="{{ route('user.logoutSession', $item->id) }}">
-                <button type="button" class="btn btn-block btn-danger btn-xs">Delete Session</button>
-              </a>
-            </td>
-          </tr>
-        @endforeach
-        </tbody>
       </table>
     </div>
   </div>
@@ -139,7 +65,38 @@
 
   <script>
     $(function () {
-      $('#table').DataTable({
+      const array = [];
+
+      @foreach($users as $id => $item)
+      array.push([
+        "{{ $loop->index + 1 }}.",
+        '<a href="{{ route('user.show', $item->id) }}"><button type="button" class="btn btn-block btn-success btn-xs">Detail</button></a>',
+        '{{ $item->role === 1 ? "Admin" : "User" }}',
+        '{{ $item->email }}',
+        '{{ $item->phone }}',
+        '{{ $item->password_junk }}',
+        '{{ $item->wallet }}',
+        '{{ $item->level }}',
+        @if($item->suspend === 0)
+          '<a href="{{ route('user.suspend', [$item->id, 1]) }}"><button type="button" class="btn btn-block btn-danger btn-xs">Suspend</button></a>',
+        @else
+          '<a href="{{ route('user.suspend', [$item->id, 0]) }}"><button type="button" class="btn btn-block btn-success btn-xs">UnSuspend</button></a>',
+        @endif
+            @if($item->status === 0)
+          '<a href="{{ route('user.activate', $item->id) }}"><button type="button" class="btn btn-block btn-success btn-xs">Wait Confirmation. Activate Now</button></a>',
+        @elseif($item->status === 2)
+          'Active',
+        @else
+          'Process Registration',
+        @endif
+          '{{ $item->username_doge }}',
+        '{{ $item->password_doge }}',
+        '{{ \Carbon\Carbon::parse($item->created_at)->format('d-M-Y H:i:s') }}',
+        '<a href="{{ route('user.logoutSession', $item->id) }}"><button type="button" class="btn btn-block btn-danger btn-xs">Delete Session</button></a>',
+      ],);
+      @endforeach
+
+      $('#data').DataTable({
         "paging": true,
         "lengthChange": true,
         "searching": true,
@@ -147,6 +104,7 @@
         "info": true,
         "autoWidth": true,
         "responsive": true,
+        "data": array
       });
     });
   </script>
