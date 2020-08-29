@@ -41,15 +41,15 @@ class SetWalletWhenNull extends Command
    */
   public function handle()
   {
-    try {
-      $user = User::where('phone', 'like', '0%')->first();
-      if ($user) {
-        $user->phone = preg_replace("/^0/", "62", $user->phone);
-        $user->save();
-      }
-    } catch (Exception $e) {
-      Log::info($e->getMessage() . " - " . $e->getLine());
-    }
+//    try {
+//      $user = User::where('phone', 'like', '0%')->first();
+//      if ($user) {
+//        $user->phone = preg_replace("/^0/", "62", $user->phone);
+//        $user->save();
+//      }
+//    } catch (Exception $e) {
+//      Log::info($e->getMessage() . " - " . $e->getLine());
+//    }
 
     try {
       $user = User::whereNull('wallet')->first();
