@@ -18,6 +18,16 @@
         <i class="fab fa-google-play mr-2"></i> Download Via Play Store
       </a>
     </div>
+    @if($register ?? '')
+      <div class="col-md-12">
+        <div class="alert alert-danger alert-dismissible">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+          <h5><i class="icon fas fa-ban"></i> Alert!</h5>
+          <p>Failed / expired verification</p>
+          <p>Please re-register / Contact your sponsor</p>
+        </div>
+      </div>
+    @endif
     @if($phone ?? '')
       <div class="col-md-12">
         <div class="card card-outline card-success">

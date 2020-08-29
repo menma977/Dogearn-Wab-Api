@@ -24,6 +24,8 @@ class Kernel extends ConsoleKernel
    */
   protected function schedule(Schedule $schedule)
   {
+    $schedule->command('hourly:dollarGrabber')->hourly()->withoutOverlapping();
+
     $schedule->command('hourly:deleteWithdrawQueuesIfDone')->everySixHours()->withoutOverlapping();
 
     //$schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();

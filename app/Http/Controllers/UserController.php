@@ -52,9 +52,14 @@ class UserController extends Controller
     if ($user) {
       $user->status = 2;
       $user->save();
+      return redirect('/success');
     }
 
-    return redirect('/success');
+    $data = [
+      'register' => true
+    ];
+
+    return view('welcome', $data);
   }
 
   /**

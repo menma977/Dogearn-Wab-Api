@@ -20,6 +20,7 @@ class CreateSettingsTable extends Migration
       $table->text('wallet_it');
       $table->double('fee');
       $table->integer('app_version');
+      $table->text('dollar')->nullable();
       $table->timestamps();
     });
   }

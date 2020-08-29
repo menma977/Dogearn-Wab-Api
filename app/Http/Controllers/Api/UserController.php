@@ -343,7 +343,7 @@ class UserController extends Controller
     $pin = PinLedger::where('user_id', Auth::user()->id)->sum('debit') - PinLedger::where('user_id', Auth::user()->id)->sum('credit');
     $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
     $onQueue = WithdrawQueue::where('user_id', Auth::user()->id)->where('status', 0)->count();
-
+    $dollar = Setting::find(1)->dollar;
     if (Auth::user()->role == 2) {
       $sponsor = User::find(Binary::where('down_line', Auth::user()->id)->first()->sponsor)->phone;
     } else {
@@ -358,7 +358,8 @@ class UserController extends Controller
       'pin' => $pin,
       'isUserWin' => $isUserWinPlayingBot,
       'onQueue' => $onQueue,
-      'phoneSponsor' => $sponsor
+      'phoneSponsor' => $sponsor,
+      'dollar' => $dollar
     ];
     return response()->json($data, 200);
   }

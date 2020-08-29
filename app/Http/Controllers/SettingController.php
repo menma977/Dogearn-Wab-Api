@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Model\AdminWallet;
 use App\Model\Setting;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -23,8 +24,11 @@ class SettingController extends Controller
   {
     $setting = Setting::find(1);
 
+    $wallet = AdminWallet::all();
+
     $data = [
-      'setting' => $setting
+      'setting' => $setting,
+      'wallet' => $wallet
     ];
 
     return view('setting.index', $data);
@@ -108,6 +112,51 @@ class SettingController extends Controller
       DB::table('oauth_access_tokens')->delete();
     }
 
+    return redirect()->back();
+  }
+
+  /**
+   * @param Request $request
+   * @return RedirectResponse
+   * @throws ValidationException
+   */
+  public function saveWallet(Request $request)
+  {
+    $this->validate($request, [
+      'newWallet' => 'required|string',
+    ]);
+    $data = new AdminWallet();
+    $data->wallet = $request->newWallet;
+    $data->save();
+
+    return redirect()->back();
+  }
+
+  /**
+   * @param Request $request
+   * @param $id
+   * @return RedirectResponse
+   * @throws ValidationException
+   */
+  public function editWallet(Request $request, $id)
+  {
+    $this->validate($request, [
+      'editWallet' => 'required|string',
+    ]);
+    $data = AdminWallet::find($id);
+    $data->wallet = $request->editWallet;
+    $data->save();
+
+    return redirect()->back();
+  }
+
+  /**
+   * @param $id
+   * @return RedirectResponse
+   */
+  public function deleteWallet($id)
+  {
+    AdminWallet::find($id)->forceDelete();
     return redirect()->back();
   }
 }

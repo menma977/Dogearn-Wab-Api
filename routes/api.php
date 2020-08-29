@@ -47,6 +47,7 @@ Route::middleware('auth:api')->group(function () {
 
   Route::group(['prefix' => 'pin', 'as' => 'pin.'], static function () {
     Route::get('/', 'Api\PinLedgerController@index')->name('index');
+    Route::get('/create', 'Api\PinLedgerController@create')->name('create');
     Route::post('/store', 'Api\PinLedgerController@store')->name('store');
   });
 

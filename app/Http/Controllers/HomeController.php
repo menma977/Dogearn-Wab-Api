@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Model\Binary;
 use App\Model\GradeHistory;
 use App\User;
 use Carbon\Carbon;
@@ -10,6 +11,7 @@ use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Http;
 
 class HomeController extends Controller
 {
@@ -56,6 +58,10 @@ class HomeController extends Controller
   public function newUserView()
   {
     $dataUser = User::whereDay('created_at', Carbon::now())->get();
+    $dataUser->map(function ($item) {
+      $binary = Binary::where('down_line', $item->id)->first();
+      $item->sponsor = User::find($binary->sponsor);
+    });
 
     $data = [
       'data' => $dataUser

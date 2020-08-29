@@ -27,6 +27,15 @@ class PinLedgerController extends Controller
       $item->date = Carbon::parse($item->created_at)->format('d-M-Y H:i:s');
     });
 
+    $data = [
+      'pinLedgers' => $pinLedgers,
+    ];
+
+    return response()->json($data, 200);
+  }
+
+  public function create()
+  {
     $arrayWallet = array();
 
     $binaries = Binary::where('down_line', Auth::user()->id)->first();
@@ -50,27 +59,28 @@ class PinLedgerController extends Controller
     if ($binaries->count()) {
       while (true) {
         foreach ($binaries as $item) {
-          $down_line = User::find($item->down_line);
-          $dataList = [
-            'wallet' => $down_line->wallet,
-          ];
-          array_push($arrayWallet, $dataList);
-          $listId = [
-            'id' => $down_line->id
-          ];
-          array_push($idDownLine, $listId);
+          if (!in_array($item->down_line, $idDownLine, true)) {
+            $down_line = User::find($item->down_line);
+            $dataList = [
+              'wallet' => $down_line->wallet,
+            ];
+            array_push($arrayWallet, $dataList);
+            $listId = [
+              'id' => $down_line->id
+            ];
+            array_push($idDownLine, $listId);
+          }
         }
         $binaries = Binary::where('sponsor', reset($idDownLine))->get();
-        array_shift($idDownLine);
 
         if (count($idDownLine) == 0) {
           break;
         }
+        array_shift($idDownLine);
       }
     }
 
     $data = [
-      'pinLedgers' => $pinLedgers,
       'walletList' => $arrayWallet
     ];
 

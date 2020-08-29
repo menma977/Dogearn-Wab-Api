@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer wallet_it
  * @property double fee
  * @property integer app_version
+ * @property string dollar
  */
 class Setting extends Model
 {
@@ -25,6 +26,7 @@ class Setting extends Model
     'type_withdraw',
     'wallet_it',
     'fee',
-    'app_version'
+    'app_version',
+    'dollar',
   ];
 }

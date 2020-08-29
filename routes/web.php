@@ -91,5 +91,8 @@ Route::middleware('auth')->group(static function () {
     Route::post('/update/fee', 'SettingController@fee')->name('fee');
     Route::post('/update/app', 'SettingController@app')->name('app');
     Route::get('/shot/down/{status}', 'SettingController@shotDown')->name('shotDown');
+    Route::post('/save/wallet', 'SettingController@saveWallet')->name('saveWallet');
+    Route::post('/edit/wallet/{id}', 'SettingController@editWallet')->name('editWallet');
+    Route::get('/delete/wallet/{id}', 'SettingController@deleteWallet')->name('deleteWallet');
   });
 });
