@@ -14,7 +14,7 @@
       </a>
     </div>
     <div class="col-md-12 mb-2">
-      <a href="#" class="btn btn-block btn-success">
+      <a href="{{ url('https://play.google.com/store/apps/details?id=net.dogearn') }}" class="btn btn-block btn-success">
         <i class="fab fa-google-play mr-2"></i> Download Via Play Store
       </a>
     </div>

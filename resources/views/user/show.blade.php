@@ -151,9 +151,15 @@
               </li>
               <li class="list-group-item">
                 <div class="progress">
-                  <div class="progress-bar bg-primary progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
-                       style="width: {{ number_format(($progressGrade / $gradeTarget) * 100, 2, '.', '') }}%">
-                  </div>
+                  @if($gradeTarget == 0)
+                    <div class="progress-bar bg-primary progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
+                         style="width: {{ number_format(($progressGrade / $gradeTarget) * 100, 2, '.', '') }}%">
+                    </div>
+                  @else
+                    <div class="progress-bar bg-primary progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 0%">
+                    </div>
+                  @endif
                 </div>
                 <b style="font-size: 12px">{{ number_format($progressGrade / 100000000, 8, '.', '') }} DOGE</b>
                 <b class="float-right" style="font-size: 12px">{{ number_format($gradeTarget / 100000000, 8, '.', '') }} DOGE</b>
