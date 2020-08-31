@@ -32,7 +32,24 @@ class HomeController extends Controller
    */
   public function index()
   {
-    return view('home');
+
+    $graphic = GradeHistory::whereDate('created_at', '>=', Carbon::now()->addMonths(-3))->whereDate('created_at', '<=', Carbon::now())->where('credit', 0)->get();
+    $graphicGroup = $graphic->groupBy(function ($item) {
+      return (string)Carbon::parse($item->created_at)->format('M');
+    })->map(function ($item) {
+      $item->upgrade = $item->count();
+      $item->newUser = 0;
+      foreach ($item as $subItem) {
+        $item->newUser = User::whereMonth('created_at', $subItem->created_at)->count();
+      }
+      return $item;
+    });
+
+    $data = [
+      'graphicGroup' => $graphicGroup
+    ];
+
+    return view('home', $data);
   }
 
   /**

@@ -345,9 +345,10 @@ class UserController extends Controller
   {
     $grade = Auth::user()->level > 0 ? Grade::find(Auth::user()->level) : null;
     $pin = PinLedger::where('user_id', Auth::user()->id)->sum('debit') - PinLedger::where('user_id', Auth::user()->id)->sum('credit');
-    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
+    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDay('created_at', Carbon::now())->count();
     $onQueue = WithdrawQueue::where('user_id', Auth::user()->id)->where('status', 0)->count();
     $dollar = Setting::find(1)->dollar;
+    $lot = Setting::find(1)->lot;
     if (Auth::user()->role == 2) {
       $sponsor = User::find(Binary::where('down_line', Auth::user()->id)->first()->sponsor)->phone;
     } else {
@@ -360,10 +361,12 @@ class UserController extends Controller
       'gradeTarget' => GradeHistory::where('user_id', Auth::user()->id)->sum("debit"),
       'progressGrade' => GradeHistory::where('user_id', Auth::user()->id)->sum("credit"),
       'pin' => $pin,
+//      'isUserWin' => $isUserWinPlayingBot ? true : false,
       'isUserWin' => $isUserWinPlayingBot,
       'onQueue' => $onQueue,
       'phoneSponsor' => $sponsor,
-      'dollar' => $dollar
+      'dollar' => $dollar,
+      'lot' => $lot
     ];
     return response()->json($data, 200);
   }

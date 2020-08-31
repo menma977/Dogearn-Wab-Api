@@ -116,6 +116,26 @@ class SettingController extends Controller
   }
 
   /**
+   * Store a newly created resource in storage.
+   *
+   * @param Request $request
+   * @return RedirectResponse|void
+   * @throws ValidationException
+   */
+  public function editLot(Request $request)
+  {
+    $this->validate($request, [
+      'lot' => 'required|numeric',
+    ]);
+
+    $setting = Setting::find(1);
+    $setting->lot = $request->lot;
+    $setting->save();
+
+    return redirect()->back();
+  }
+
+  /**
    * @param Request $request
    * @return RedirectResponse
    * @throws ValidationException

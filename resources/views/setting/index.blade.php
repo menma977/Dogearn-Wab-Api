@@ -86,6 +86,27 @@
           </form>
         </div>
       </div>
+      <div class="col-md-6">
+        <div class="card card-outline card-primary">
+          <div class="card-header">
+            <h3 class="card-title">Target LOT for BOT</h3>
+          </div>
+          <form method="post" action="{{ route('setting.editLot') }}">
+            @csrf
+            <div class="card-body">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <label for="lot" class="input-group-text">LOT</label>
+                </div>
+                <input type="text" class="form-control @error('lot') is-invalid @enderror" id="lot" name="lot" value="{{ old('lot') ?: $setting->lot }}">
+              </div>
+            </div>
+            <div class="card-footer">
+              <button type="submit" class="btn btn-block btn-success">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
       <div class="col-md-12">
         <div class="card card-outline card-primary">
           <div class="card-header">
@@ -214,6 +235,9 @@
       toastr.error('{{ $message }}');
       @enderror
       @error('editWallet')
+      toastr.error('{{ $message }}');
+      @enderror
+      @error('lot')
       toastr.error('{{ $message }}');
       @enderror
 

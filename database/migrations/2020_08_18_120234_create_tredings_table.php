@@ -18,7 +18,7 @@ class CreateTredingsTable extends Migration
       $table->integer('user_id');
       $table->text('start_balance');
       $table->text('end_balance');
-      $table->integer('status');
+      $table->integer('status')->default(1);
       $table->timestamps();
     });
   }

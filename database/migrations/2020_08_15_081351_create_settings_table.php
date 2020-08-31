@@ -21,6 +21,7 @@ class CreateSettingsTable extends Migration
       $table->double('fee');
       $table->integer('app_version');
       $table->text('dollar')->nullable();
+      $table->integer('lot')->default(1);
       $table->timestamps();
     });
   }

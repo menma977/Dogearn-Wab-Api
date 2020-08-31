@@ -106,9 +106,9 @@
       </div>
     </div>
     <div class="col-md-6">
-      <div class="card card-success">
+      <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">Bar Chart</h3>
+          <h3 class="card-title">New User And LOT in 3 Month</h3>
         </div>
         <div class="card-body">
           <div class="chart">
@@ -130,6 +130,7 @@
     let dataUser = [0, 0, 0];
 
     $(async function () {
+      setGraphic();
       $('#totalUserText').html(await totalUser());
       $('#onlineUserText').html(await onlineUser());
       $('#newUserText').html(await newUser());
@@ -248,30 +249,40 @@
     }
 
     function setGraphic() {
+      const arrayLabel = [];
+      const arrayData1 = [];
+      const arrayData2 = [];
+
+      @foreach($graphicGroup as $id => $item)
+      arrayLabel.push("{{$id}}")
+      arrayData1.push("{{$item->upgrade}}")
+      arrayData2.push("{{$item->newUser}}")
+      @endforeach
+
       const areaChartData = {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Augustus', 'September', 'October', 'November', 'December'],
+        labels: arrayLabel,
         datasets: [
           {
-            label: 'Digital Goods',
-            backgroundColor: 'rgba(60,141,188,0.9)',
-            borderColor: 'rgba(60,141,188,0.8)',
+            label: 'LOT',
+            backgroundColor: '#28a745',
+            borderColor: '#24963e',
             pointRadius: false,
-            pointColor: '#3b8bba',
-            pointStrokeColor: 'rgba(60,141,188,1)',
+            pointColor: '#28a745',
+            pointStrokeColor: '#28a745',
             pointHighlightFill: '#fff',
-            pointHighlightStroke: 'rgba(60,141,188,1)',
-            data: [28, 48, 40, 19, 86, 27, 90]
+            pointHighlightStroke: '#24963e',
+            data: arrayData1
           },
           {
-            label: 'Electronics',
-            backgroundColor: 'rgba(210, 214, 222, 1)',
-            borderColor: 'rgba(210, 214, 222, 1)',
+            label: 'New User',
+            backgroundColor: '#ffc107',
+            borderColor: '#e5ad06',
             pointRadius: false,
-            pointColor: 'rgba(210, 214, 222, 1)',
-            pointStrokeColor: '#c1c7d1',
+            pointColor: '#ffc107',
+            pointStrokeColor: '#e5ad06',
             pointHighlightFill: '#fff',
-            pointHighlightStroke: 'rgba(220,220,220,1)',
-            data: [65, 59, 80, 81, 56, 55, 40]
+            pointHighlightStroke: '#ffc107',
+            data: arrayData2
           },
         ]
       }
