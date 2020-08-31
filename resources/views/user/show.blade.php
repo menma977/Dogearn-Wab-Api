@@ -151,13 +151,13 @@
               </li>
               <li class="list-group-item">
                 <div class="progress">
-                  @if($gradeTarget == 0)
+                  @if($gradeTarget != 0)
                     <div class="progress-bar bg-primary progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
                          style="width: {{ number_format(($progressGrade / $gradeTarget) * 100, 2, '.', '') }}%">
                     </div>
                   @else
                     <div class="progress-bar bg-primary progress-bar-striped" role="progressbar" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
-                         style="width: 0%">
+                         style="width: 0">
                     </div>
                   @endif
                 </div>

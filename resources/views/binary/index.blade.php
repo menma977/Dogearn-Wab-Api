@@ -22,7 +22,7 @@
 
 @section('content')
   <div class="table-responsive">
-    <ul class="tree">
+    <ul class="tree" style="min-width: 1000px">
       <li>
         <div class="fa fa-minus-circle" style="min-width: 200px">
           {{ Auth::user()->email }} <i class="fa fa-trophy text-danger" style="font-size: 10px;">{{ Auth::user()->level }}</i>

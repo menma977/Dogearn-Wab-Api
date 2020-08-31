@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 
@@ -118,54 +119,57 @@ class UserController extends Controller
    */
   public function login(Request $request): ?JsonResponse
   {
+    $type = filter_var($request->phone, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
     $this->validate($request, [
-      'phone' => 'required|string',
+      'phone' => 'required|string|exists:users,' . $type,
       'password' => 'required|string',
     ]);
-    $type = filter_var($request->phone, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
-    if (Auth::attempt([$type => request('phone'), 'password' => request('password')])) {
-      foreach (Auth::user()->tokens as $key => $value) {
-        $value->revoke();
-      }
-      $user = Auth::user();
-      if (($user !== null) && $user->suspand == 1) {
-        $data = [
-          'message' => 'The given data was invalid.',
-          'errors' => [
-            'validation' => ['Your account has been suspended.'],
-          ],
-        ];
-        return response()->json($data, 500);
-      }
+    try {
+      if (Auth::attempt([$type => request('phone'), 'password' => request('password')])) {
+        foreach (Auth::user()->tokens as $key => $value) {
+          $value->revoke();
+        }
+        $user = Auth::user();
+        if (($user !== null) && $user->suspand == 1) {
+          $data = [
+            'message' => 'The given data was invalid.',
+            'errors' => [
+              'validation' => ['Your account has been suspended.'],
+            ],
+          ];
+          return response()->json($data, 500);
+        }
 
-      if (($user !== null) && $user->status == 0) {
-        $data = [
-          'message' => 'The given data was invalid.',
-          'errors' => [
-            'warning' => ['please confirm your email first.'],
-          ],
-        ];
-        return response()->json($data, 500);
-      }
+        if (($user !== null) && $user->status == 0) {
+          $data = [
+            'message' => 'The given data was invalid.',
+            'errors' => [
+              'warning' => ['please confirm your email first.'],
+            ],
+          ];
+          return response()->json($data, 500);
+        }
 
-      if (($user !== null) && Setting::find(1)->maintenance == 1) {
-        $data = [
-          'message' => 'Under Maintenance.',
-        ];
-        return response()->json($data, 500);
-      }
+        if (($user !== null) && Setting::find(1)->maintenance == 1) {
+          $data = [
+            'message' => 'Under Maintenance.',
+          ];
+          return response()->json($data, 500);
+        }
 
-      $user->token = $user->createToken('Android')->accessToken;
-      return response()->json([
-        'token' => $user->token,
-        'wallet' => $user->wallet,
-        'account_cookie' => $user->account_cookie,
-        'phone' => $user->phone,
-        'username' => $user->username_doge,
-        'password' => $user->password_doge
-      ], 200);
+        $user->token = $user->createToken('Android')->accessToken;
+        return response()->json([
+          'token' => $user->token,
+          'wallet' => $user->wallet,
+          'account_cookie' => $user->account_cookie,
+          'phone' => $user->phone,
+          'username' => $user->username_doge,
+          'password' => $user->password_doge
+        ], 200);
+      }
+    } catch (Exception $e) {
+      Log::error($e->getMessage() . " - " . $e->getFile() . " - " . $e->getLine());
     }
-
     $data = [
       'message' => 'The given data was invalid.',
       'errors' => [
