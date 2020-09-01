@@ -46,7 +46,7 @@ class SendDataToOtherDomain2 extends Command
   public function handle()
   {
     try {
-      $data = WithdrawQueue::where('status', 0)->first();
+      $data = WithdrawQueue::where('status', 0)->orderBy('id', 'asc')->get()->first();
       if ($data) {
         $user = User::find($data->user_id);
         if ($data->type == 2) {

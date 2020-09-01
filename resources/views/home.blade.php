@@ -108,7 +108,7 @@
     <div class="col-md-6">
       <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">New User And LOT in 3 Month</h3>
+          <h3 class="card-title">New User And LOT in 1 Month</h3>
         </div>
         <div class="card-body">
           <div class="chart">

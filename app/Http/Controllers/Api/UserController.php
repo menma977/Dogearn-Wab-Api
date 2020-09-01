@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use Swift_Mailer;
+use Swift_SmtpTransport;
 
 class UserController extends Controller
 {
@@ -99,15 +101,42 @@ class UserController extends Controller
       'link' => ''
     ];
 
-    Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
-      $message->to($user->email, 'Password')->subject('Send Password');
-      $message->from('admin@dogearn.com', 'DOGEARN');
-    });
+    try {
+      Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
+        $message->to($user->email, 'Password')->subject('Send Password');
+        $message->from('admin@dogearn.com', 'DOGEARN');
+      });
+    } catch (Exception $e) {
+      Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
+    }
 
-    Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
-      $message->to($user->email, 'Password')->subject('Send Password');
-      $message->from('admin@dogearn.com', 'DOGEARN');
-    });
+    try {
+      $backup = Mail::getSwiftMailer();
+
+      $transport = new Swift_SmtpTransport();
+      $transport->setHost('mail.dogearn.net');
+      $transport->setPort(587);
+      $transport->setEncryption("tls");
+      $transport->setUsername('admin@dogearn.net');
+      $transport->setPassword('pKnq5=9guEcv');
+      $transport->setTimeout(60);
+
+      $gmail = new Swift_Mailer($transport);
+
+      // Set the mailer as gmail
+      Mail::setSwiftMailer($gmail);
+
+      // Send your message
+      Mail::send('mail.reRegistration', $data, function ($message) use ($user) {
+        $message->to($user->email, 'Password')->subject('Send Password');
+        $message->from('admin@dogearn.com', 'DOGEARN');
+      });
+
+      // Restore your original mailer
+      Mail::setSwiftMailer($backup);
+    } catch (Exception $e) {
+      Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
+    }
 
     return response()->json(['message' => 'success'], 200);
   }
@@ -309,15 +338,42 @@ class UserController extends Controller
         $binary->down_line = $user->id;
         $binary->save();
 
-        Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
-          $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
-          $message->from('admin@dogearn.com', 'DOGEARN');
-        });
+        try {
+          Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
+            $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
+            $message->from('admin@dogearn.com', 'DOGEARN');
+          });
+        } catch (Exception $e) {
+          Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
+        }
 
-        Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
-          $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
-          $message->from('admin@dogearn.com', 'DOGEARN');
-        });
+        try {
+          $backup = Mail::getSwiftMailer();
+
+          $transport = new Swift_SmtpTransport();
+          $transport->setHost('mail.dogearn.net');
+          $transport->setPort(587);
+          $transport->setEncryption("tls");
+          $transport->setUsername('admin@dogearn.net');
+          $transport->setPassword('pKnq5=9guEcv');
+          $transport->setTimeout(60);
+
+          $gmail = new Swift_Mailer($transport);
+
+          // Set the mailer as gmail
+          Mail::setSwiftMailer($gmail);
+
+          // Send your message
+          Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
+            $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
+            $message->from('admin@dogearn.com', 'DOGEARN');
+          });
+
+          // Restore your original mailer
+          Mail::setSwiftMailer($backup);
+        } catch (Exception $e) {
+          Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
+        }
 
         return response()->json($data, 200);
       } catch (Exception $e) {
@@ -385,15 +441,43 @@ class UserController extends Controller
       'messages' => '<p><Strong> Your code is: <div style="font-size: 22px; color: #2a272b;text-align: center">' . $code . '</div></Strong>.</p> <p>this is the code to change your password, dont share it with anyone</p>',
       'link' => ''
     ];
-    Mail::send('mail.reRegistration', $data, function ($message) {
-      $message->to(Auth::user()->email, 'code account')->subject('code for account changes');
-      $message->from('admin@dogearn.com', 'DOGEARN');
-    });
 
-    Mail::send('mail.reRegistration', $data, function ($message) {
-      $message->to(Auth::user()->email, 'code account')->subject('code for account changes');
-      $message->from('admin@dogearn.com', 'DOGEARN');
-    });
+    try {
+      Mail::send('mail.reRegistration', $data, function ($message) {
+        $message->to(Auth::user()->email, 'code account')->subject('code for account changes');
+        $message->from('admin@dogearn.com', 'DOGEARN');
+      });
+    } catch (Exception $e) {
+      Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
+    }
+
+    try {
+      $backup = Mail::getSwiftMailer();
+
+      $transport = new Swift_SmtpTransport();
+      $transport->setHost('mail.dogearn.net');
+      $transport->setPort(587);
+      $transport->setEncryption("tls");
+      $transport->setUsername('admin@dogearn.net');
+      $transport->setPassword('pKnq5=9guEcv');
+      $transport->setTimeout(60);
+
+      $gmail = new Swift_Mailer($transport);
+
+      // Set the mailer as gmail
+      Mail::setSwiftMailer($gmail);
+
+      // Send your message
+      Mail::send('mail.reRegistration', $data, function ($message) {
+        $message->to(Auth::user()->email, 'code account')->subject('code for account changes');
+        $message->from('admin@dogearn.com', 'DOGEARN');
+      });
+
+      // Restore your original mailer
+      Mail::setSwiftMailer($backup);
+    } catch (Exception $e) {
+      Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
+    }
     $data = [
       'code' => $code,
     ];

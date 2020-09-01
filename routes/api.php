@@ -35,6 +35,7 @@ Route::middleware('auth:api')->group(function () {
 
   Route::group(['prefix' => 'doge', 'as' => 'doge.'], static function () {
     Route::get('/', 'Api\DogeHistoryController@index')->name('index');
+    Route::post('/store', 'Api\DogeHistoryController@store')->name('store');
   });
 
   Route::group(['prefix' => 'grade', 'as' => 'grade.'], static function () {

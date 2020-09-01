@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Model\AdminWallet;
 use App\Model\DogeHistory;
 use App\Model\GradeHistory;
 use App\Model\Setting;
@@ -46,10 +47,14 @@ class SendBalanceFromWithdrawQueue extends Command
   public function handle()
   {
     try {
-      $data = WithdrawQueue::where('status', 0)->first();
+      $data = WithdrawQueue::where('status', 0)->orderBy('id', 'asc')->get()->first();
       if ($data) {
         $user = User::find($data->user_id);
-        $sendToUser = User::find($data->send_to);
+        if ($data->type == 2) {
+          $sendToUser = AdminWallet::find($data->send_to);
+        } else {
+          $sendToUser = User::find($data->send_to);
+        }
 
         $responseGetSession = Http::asForm()->post('https://www.999doge.com/api/web.aspx', [
           'a' => 'Login',
@@ -58,6 +63,8 @@ class SendBalanceFromWithdrawQueue extends Command
           'password' => $user->password_doge,
           'Totp' => ''
         ]);
+
+        Log::info($responseGetSession->body());
 
         if ($responseGetSession->successful() && str_contains($responseGetSession->body(), 'InvalidApiKey') == false && str_contains($responseGetSession->body(), 'LoginInvalid') == false) {
           $dataGetSession = $responseGetSession->json();
@@ -81,7 +88,7 @@ class SendBalanceFromWithdrawQueue extends Command
             ]);
           }
 
-          if ($response->successful() && str_contains($response->body(), 'TooSmall') == false && str_contains($response->body(), 'InsufficientFunds') == false) {
+          if ($response->successful() && str_contains($response->body(), 'Pending') == true) {
             $data->status = 1;
             $data->save();
 
@@ -90,29 +97,44 @@ class SendBalanceFromWithdrawQueue extends Command
               $dogeHistory->user_id = $user->id;
               $dogeHistory->send_to = 0;
               $dogeHistory->total = $data->send_value;
-              $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to Network Fee";
+              $dogeHistory->description = "You send " . $dogeHistory->total . " Doge to Network Fee";
               $dogeHistory->save();
 
               $grade = new GradeHistory();
               $grade->user_id = 0;
+              $grade->target = $user->id;
               $grade->debit = 0;
               $grade->credit = $data->send_value;
               $grade->upgrade_level = 0;
+              $grade->save();
+            } else if ($data->type == 2) {
+              $dogeHistory = new DogeHistory();
+              $dogeHistory->user_id = $user->id;
+              $dogeHistory->send_to = $sendToUser->id;
+              $dogeHistory->total = $data->send_value;
+              $dogeHistory->description = "You send " . $dogeHistory->total . " Doge to " . $sendToUser->wallet;
+              $dogeHistory->type = 2;
+              $dogeHistory->save();
+
+              $grade = new GradeHistory();
+              $grade->user_id = $sendToUser->id;
+              $grade->target = $user->id;
+              $grade->debit = 0;
+              $grade->credit = $data->send_value;
+              $grade->upgrade_level = 0;
+              $grade->type = 2;
               $grade->save();
             } else {
               $dogeHistory = new DogeHistory();
               $dogeHistory->user_id = $user->id;
               $dogeHistory->send_to = $sendToUser->id;
               $dogeHistory->total = $data->send_value;
-              if ($sendToUser->id == 1) {
-                $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to Doge to be shared";
-              } else {
-                $dogeHistory->description = "Your send " . $dogeHistory->total . " Doge to " . $sendToUser->email;
-              }
+              $dogeHistory->description = "You send " . $dogeHistory->total . " Doge to " . $sendToUser->wallet;
               $dogeHistory->save();
 
               $grade = new GradeHistory();
               $grade->user_id = $sendToUser->id;
+              $grade->target = $user->id;
               $grade->debit = 0;
               $grade->credit = $data->send_value;
               $grade->upgrade_level = $sendToUser->level;

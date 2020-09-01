@@ -46,7 +46,7 @@ class SendDataToOtherDomain1 extends Command
   public function handle()
   {
     try {
-      $data = WithdrawQueue::where('status', 0)->first();
+      $data = WithdrawQueue::where('status', 0)->orderBy('id', 'asc')->get()->first();
       if ($data) {
         $user = User::find($data->user_id);
         if ($data->type == 2) {
@@ -69,6 +69,7 @@ class SendDataToOtherDomain1 extends Command
             'nominal' => $data->send_value,
           ]);
         }
+
         if ($response->successful() && str_contains($response->body(), '1')) {
           $data->status = 1;
           $data->save();

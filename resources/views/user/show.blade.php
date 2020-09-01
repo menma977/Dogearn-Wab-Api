@@ -225,11 +225,27 @@
                   </p>
                 </div>
                 <div class="post table-responsive">
-                  <h5>Gets a list of deposits or incoming transfers</h5>
+                  <h5>Deposits External</h5>
                   <a id="loadDeposit" class="btn btn-app">
                     <i class="fas fa-redo"></i> Refresh
                   </a>
-                  <table id="tableDeposit" class="table table-striped text-center" style="width: 100%">
+                  <table id="tableDepositExternal" class="table table-striped text-center" style="width: 100%">
+                    <thead>
+                    <tr>
+                      <th style="width: 20px">Currency</th>
+                      <th>Date</th>
+                      <th>Address</th>
+                      <th>Hash</th>
+                      <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="post table-responsive">
+                  <h5>Incoming</h5>
+                  <table id="tableDepositInternal" class="table table-striped text-center" style="width: 100%">
                     <thead>
                     <tr>
                       <th style="width: 20px">Currency</th>
@@ -243,11 +259,28 @@
                   </table>
                 </div>
                 <div class="post table-responsive">
-                  <h5>Gets a list of withdrawals or outgoing transfers</h5>
+                  <h5>Withdrawals External</h5>
                   <a id="loadWithdraw" class="btn btn-app">
                     <i class="fas fa-redo"></i> Refresh
                   </a>
-                  <table id="tableWithdraw" class="table table-striped text-center" style="width: 100%">
+                  <table id="tableWithdrawExternal" class="table table-striped text-center" style="width: 100%">
+                    <thead>
+                    <tr>
+                      <th style="width: 20px">Currency</th>
+                      <th>Requested</th>
+                      <th>Completed</th>
+                      <th>Address</th>
+                      <th>Hash</th>
+                      <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="post table-responsive">
+                  <h5>Outgoing</h5>
+                  <table id="tableWithdrawInternal" class="table table-striped text-center" style="width: 100%">
                     <thead>
                     <tr>
                       <th style="width: 20px">Currency</th>
@@ -289,7 +322,7 @@
 
   <script>
     let sessionCookie = ""
-    let tableDeposit = $('#tableDeposit').DataTable({
+    let tableDepositExternal = $('#tableDepositExternal').DataTable({
       "paging": true,
       "lengthChange": true,
       "searching": true,
@@ -298,7 +331,25 @@
       "autoWidth": true,
       "responsive": true,
     });
-    let tableWithdraw = $('#tableWithdraw').DataTable({
+    let tableDepositInternal = $('#tableDepositInternal').DataTable({
+      "paging": true,
+      "lengthChange": true,
+      "searching": true,
+      "ordering": true,
+      "info": true,
+      "autoWidth": true,
+      "responsive": true,
+    });
+    let tableWithdrawExternal = $('#tableWithdrawExternal').DataTable({
+      "paging": true,
+      "lengthChange": true,
+      "searching": true,
+      "ordering": true,
+      "info": true,
+      "autoWidth": true,
+      "responsive": true,
+    });
+    let tableWithdrawInternal = $('#tableWithdrawInternal').DataTable({
       "paging": true,
       "lengthChange": true,
       "searching": true,
@@ -380,19 +431,17 @@
         redirect: 'follow'
       };
 
-      const proxyUrl = "https://cors-anywhere.herokuapp.com/";
+      console.log(requestOptions);
+
       const url = "https://www.999doge.com/api/web.aspx";
-      fetch(proxyUrl + url, requestOptions)
-        .then(response => response.json())
-        .then(result => {
-          sessionCookie = result.SessionCookie;
-          let balance = result.Doge.Balance;
-          balance /= 100000000;
-          $("#getBalance").html(balance.toFixed(8) + "DOGE");
-        })
-        .catch(error => {
-          toastr.error(error);
-        });
+      fetch(url, requestOptions).then(response => response.json()).then(result => {
+        sessionCookie = result.SessionCookie;
+        let balance = result.Doge.Balance;
+        balance /= 100000000;
+        $("#getBalance").html(balance.toFixed(8) + "DOGE");
+      }).catch(error => {
+        toastr.error(error);
+      });
     }
 
     function getDeposits() {
@@ -411,10 +460,28 @@
         redirect: 'follow'
       };
 
-      const proxyUrl = "https://cors-anywhere.herokuapp.com/";
       const url = "https://www.999doge.com/api/web.aspx";
-      fetch(proxyUrl + url, requestOptions).then(response => response.json()).then(result => {
-        tableDeposit.clear().draw();
+      fetch(url, requestOptions).then(response => response.json()).then(result => {
+        tableDepositExternal.clear().draw();
+        tableDepositInternal.clear().draw();
+
+        for (let i = 0; i < result.Deposits.length; i++) {
+          let currency = result.Deposits[i].Currency;
+          let date = result.Deposits[i].Date;
+          let address = result.Deposits[i].Address;
+          let hash = result.Deposits[i].TransactionHash;
+          let balance = result.Deposits[i].Value;
+          balance /= 100000000;
+          let value = balance + "DOGE";
+
+          tableDepositExternal.row.add([
+            currency,
+            date,
+            address,
+            hash,
+            value
+          ]).draw();
+        }
 
         for (let i = 0; i < result.Transfers.length; i++) {
           let currency = result.Transfers[i].Currency;
@@ -424,7 +491,7 @@
           balance /= 100000000;
           let value = balance + "DOGE";
 
-          tableDeposit.row.add([
+          tableDepositInternal.row.add([
             currency,
             date,
             address,
@@ -452,10 +519,30 @@
         redirect: 'follow'
       };
 
-      const proxyUrl = "https://cors-anywhere.herokuapp.com/";
       const url = "https://www.999doge.com/api/web.aspx";
-      fetch(proxyUrl + url, requestOptions).then(response => response.json()).then(result => {
-        tableWithdraw.clear().draw();
+      fetch(url, requestOptions).then(response => response.json()).then(result => {
+        tableWithdrawExternal.clear().draw();
+        tableWithdrawInternal.clear().draw();
+
+        for (let i = 0; i < result.Withdrawals.length; i++) {
+          let currency = result.Withdrawals[i].Currency;
+          let requested = result.Withdrawals[i].Requested;
+          let completed = result.Withdrawals[i].Completed;
+          let address = result.Withdrawals[i].Address;
+          let hash = result.Withdrawals[i].TransactionHash;
+          let balance = result.Withdrawals[i].Value;
+          balance /= 100000000;
+          let value = balance + "DOGE";
+
+          tableWithdrawExternal.row.add([
+            currency,
+            requested,
+            completed,
+            address,
+            hash,
+            value
+          ]).draw();
+        }
 
         for (let i = 0; i < result.Transfers.length; i++) {
           let currency = result.Transfers[i].Currency;
@@ -466,7 +553,7 @@
           balance /= 100000000;
           let value = balance + "DOGE";
 
-          tableWithdraw.row.add([
+          tableWithdrawInternal.row.add([
             currency,
             requested,
             completed,
@@ -525,7 +612,6 @@
         }),
       }).then((response) => response.json()).then((data) => {
         tablePin.clear().draw();
-        console.log(data)
         for (let i = 0; i < data.length; i++) {
           let debit = data[i].debit;
           let credit = data[i].credit;
