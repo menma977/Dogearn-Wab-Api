@@ -415,7 +415,6 @@
     function getBalance() {
       let $header = new Headers();
       $header.append("Content-Type", "application/x-www-form-urlencoded");
-      $header.append("Access-Control-Allow-Origin", "*");
 
       let urlencoded = new URLSearchParams();
       urlencoded.append("a", "Login");
@@ -431,9 +430,7 @@
         redirect: 'follow'
       };
 
-      console.log(requestOptions);
-
-      const url = "https://www.999doge.com/api/web.aspx";
+      const url = "https://corsdoge.herokuapp.com/doge";
       fetch(url, requestOptions).then(response => response.json()).then(result => {
         sessionCookie = result.SessionCookie;
         let balance = result.Doge.Balance;
@@ -447,7 +444,6 @@
     function getDeposits() {
       let $header = new Headers();
       $header.append("Content-Type", "application/x-www-form-urlencoded");
-      $header.append("Access-Control-Allow-Origin", "*");
 
       let urlencoded = new URLSearchParams();
       urlencoded.append("a", "GetDeposits");
@@ -460,7 +456,7 @@
         redirect: 'follow'
       };
 
-      const url = "https://www.999doge.com/api/web.aspx";
+      const url = "https://corsdoge.herokuapp.com/doge";
       fetch(url, requestOptions).then(response => response.json()).then(result => {
         tableDepositExternal.clear().draw();
         tableDepositInternal.clear().draw();
@@ -506,7 +502,6 @@
     function getWithdrawals() {
       let $header = new Headers();
       $header.append("Content-Type", "application/x-www-form-urlencoded");
-      $header.append("Access-Control-Allow-Origin", "*");
 
       let urlencoded = new URLSearchParams();
       urlencoded.append("a", "GetWithdrawals");
@@ -519,7 +514,7 @@
         redirect: 'follow'
       };
 
-      const url = "https://www.999doge.com/api/web.aspx";
+      const url = "https://corsdoge.herokuapp.com/doge";
       fetch(url, requestOptions).then(response => response.json()).then(result => {
         tableWithdrawExternal.clear().draw();
         tableWithdrawInternal.clear().draw();
