@@ -31,6 +31,13 @@ class HomeController extends Controller
    */
   public function index()
   {
+    $lot = User::where('status', 2)->orderBy('level', 'asc')->get()->groupBy(function ($item) {
+      return "LOT ".$item->level;
+    })->map(function ($item) {
+      $item->total = $item->count();
+      return $item;
+    });
+
     $graphic = GradeHistory::whereMonth('created_at', '<=', Carbon::now())->whereMonth('created_at', '>=', Carbon::now()->addMonths(-1))->where('credit', 0)->get();
     $graphicGroup = $graphic->groupBy(function ($item) {
       return (string)Carbon::parse($item->created_at)->format('d');
@@ -44,7 +51,8 @@ class HomeController extends Controller
     });
 
     $data = [
-      'graphicGroup' => $graphicGroup
+      'graphicGroup' => $graphicGroup,
+      'lot' => $lot
     ];
 
     return view('home', $data);

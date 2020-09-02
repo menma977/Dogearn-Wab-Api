@@ -232,8 +232,8 @@
                   <table id="tableDepositExternal" class="table table-striped text-center" style="width: 100%">
                     <thead>
                     <tr>
-                      <th style="width: 20px">Currency</th>
                       <th>Date</th>
+                      <th style="width: 20px">Currency</th>
                       <th>Address</th>
                       <th>Hash</th>
                       <th>Value</th>
@@ -248,8 +248,8 @@
                   <table id="tableDepositInternal" class="table table-striped text-center" style="width: 100%">
                     <thead>
                     <tr>
-                      <th style="width: 20px">Currency</th>
                       <th>Date</th>
+                      <th style="width: 20px">Currency</th>
                       <th>Address</th>
                       <th>Value</th>
                     </tr>
@@ -266,9 +266,9 @@
                   <table id="tableWithdrawExternal" class="table table-striped text-center" style="width: 100%">
                     <thead>
                     <tr>
-                      <th style="width: 20px">Currency</th>
-                      <th>Requested</th>
                       <th>Completed</th>
+                      <th>Requested</th>
+                      <th style="width: 20px">Currency</th>
                       <th>Address</th>
                       <th>Hash</th>
                       <th>Value</th>
@@ -283,9 +283,9 @@
                   <table id="tableWithdrawInternal" class="table table-striped text-center" style="width: 100%">
                     <thead>
                     <tr>
-                      <th style="width: 20px">Currency</th>
-                      <th>Requested</th>
                       <th>Completed</th>
+                      <th>Requested</th>
+                      <th style="width: 20px">Currency</th>
                       <th>Address</th>
                       <th>Value</th>
                     </tr>
@@ -377,6 +377,9 @@
       "responsive": true,
     });
 
+    let tokenDeposit = "";
+    let tokenWithdraw = "";
+
     $(function () {
       setLot()
       setPin()
@@ -448,6 +451,7 @@
       let urlencoded = new URLSearchParams();
       urlencoded.append("a", "GetDeposits");
       urlencoded.append("s", sessionCookie);
+      urlencoded.append("Token", tokenDeposit);
 
       let requestOptions = {
         method: 'POST',
@@ -461,6 +465,8 @@
         tableDepositExternal.clear().draw();
         tableDepositInternal.clear().draw();
 
+        tokenDeposit = result["Token"];
+
         for (let i = 0; i < result.Deposits.length; i++) {
           let currency = result.Deposits[i].Currency;
           let date = result.Deposits[i].Date;
@@ -471,8 +477,8 @@
           let value = balance + "DOGE";
 
           tableDepositExternal.row.add([
-            currency,
             date,
+            currency,
             address,
             hash,
             value
@@ -488,8 +494,8 @@
           let value = balance + "DOGE";
 
           tableDepositInternal.row.add([
-            currency,
             date,
+            currency,
             address,
             value
           ]).draw();
@@ -506,6 +512,7 @@
       let urlencoded = new URLSearchParams();
       urlencoded.append("a", "GetWithdrawals");
       urlencoded.append("s", sessionCookie);
+      urlencoded.append("Token", tokenWithdraw);
 
       let requestOptions = {
         method: 'POST',
@@ -519,6 +526,8 @@
         tableWithdrawExternal.clear().draw();
         tableWithdrawInternal.clear().draw();
 
+        tokenWithdraw = result["Token"];
+
         for (let i = 0; i < result.Withdrawals.length; i++) {
           let currency = result.Withdrawals[i].Currency;
           let requested = result.Withdrawals[i].Requested;
@@ -530,9 +539,9 @@
           let value = balance + "DOGE";
 
           tableWithdrawExternal.row.add([
-            currency,
-            requested,
             completed,
+            requested,
+            currency,
             address,
             hash,
             value
@@ -549,9 +558,9 @@
           let value = balance + "DOGE";
 
           tableWithdrawInternal.row.add([
-            currency,
-            requested,
             completed,
+            requested,
+            currency,
             address,
             value
           ]).draw();

@@ -17,7 +17,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -247,10 +246,12 @@ class UserController extends Controller
 
   /**
    * @param $id
+   * @return RedirectResponse
    */
   public function logoutSession($id)
   {
-    DB::table('oauth_access_tokens')->where('user_id', $id)->delete();
+    $data = User::find($id);
+    Treding::where('user_id', $data->id)->whereDay('created_at', Carbon::now())->delete();
 
     return redirect()->back();
   }

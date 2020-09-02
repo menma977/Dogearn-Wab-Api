@@ -98,10 +98,10 @@
     <div class="col-md-6">
       <div class="card card-outline card-primary">
         <div class="card-header">
-          <h3 class="card-title">Users Activity</h3>
+          <h3 class="card-title">Lot</h3>
         </div>
         <div class="card-body">
-          <canvas id="donutChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+          <canvas id="barChartLot" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
         </div>
       </div>
     </div>
@@ -125,12 +125,12 @@
   <script src="{{ asset('plugins/chart.js/Chart.min.js') }}"></script>
 
   <script>
-    let donutChart;
+    let barChartLot;
     let barChart;
-    let dataUser = [0, 0, 0];
 
     $(async function () {
       setGraphic();
+      setGraphicLot();
       $('#totalUserText').html(await totalUser());
       $('#onlineUserText').html(await onlineUser());
       $('#newUserText').html(await newUser());
@@ -140,9 +140,6 @@
       $('#userNotVerifiedLine').width((await totalUser() - await newUserNotVerified()) + "%");
       let description = "user not verified: " + await newUserNotVerified() + " .from total user: " + await totalUser()
       $('#userNotVerifiedDescription').html(description);
-
-      dataUser = [await totalUser() - await onlineUser() - await newUser(), await onlineUser(), await newUser()];
-      setChart();
 
       await setInterval(async function () {
         $('#totalUserText').html(await totalUser());
@@ -154,10 +151,6 @@
         $('#userNotVerifiedLine').width((await totalUser() - await newUserNotVerified()) + "%");
         let description = "user not verified: " + await newUserNotVerified() + " .from total user: " + await totalUser()
         $('#userNotVerifiedDescription').html(description);
-
-        dataUser = [await totalUser() - await onlineUser() - await newUser(), await onlineUser(), await newUser()];
-        donutChart.data.datasets[0].data = dataUser;
-        donutChart.update();
       }, 5000);
     });
 
@@ -221,31 +214,47 @@
       });
     }
 
-    function setChart() {
-      const donutChartCanvas = $('#donutChart').get(0).getContext('2d')
-      const donutData = {
-        labels: [
-          'Total User',
-          'Online Users',
-          'New User Today',
-        ],
+    function setGraphicLot() {
+      const arrayLabel = [];
+      const arrayData = [];
+
+      @foreach($lot as $id => $item)
+      arrayLabel.push("{{$id}}")
+      arrayData.push("{{$item->total}}")
+      @endforeach
+
+      const areaChartData = {
+        labels: arrayLabel,
         datasets: [
           {
-            data: dataUser,
-            backgroundColor: ['#007bff', '#17a2b8', '#f39c12'],
+            label: 'LOT',
+            backgroundColor: '#007bff',
+            borderColor: '#006ee5',
+            pointRadius: false,
+            pointColor: '#007bff',
+            pointStrokeColor: '#007bff',
+            pointHighlightFill: '#fff',
+            pointHighlightStroke: '#006ee5',
+            data: arrayData
           }
         ]
       }
-      const donutOptions = {
-        maintainAspectRatio: false,
+
+      const barChartCanvas = $('#barChartLot').get(0).getContext('2d')
+      const barChartData = jQuery.extend(true, {}, areaChartData)
+      barChartData.datasets[0] = areaChartData.datasets[0]
+
+      const barChartOptions = {
         responsive: true,
+        maintainAspectRatio: false,
+        datasetFill: false
       }
 
-      donutChart = new Chart(donutChartCanvas, {
-        type: 'doughnut',
-        data: donutData,
-        options: donutOptions
-      });
+      barChart = new Chart(barChartCanvas, {
+        type: 'bar',
+        data: barChartData,
+        options: barChartOptions
+      })
     }
 
     function setGraphic() {

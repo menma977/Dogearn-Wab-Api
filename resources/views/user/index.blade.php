@@ -36,7 +36,7 @@
           <th>Username DOGE</th>
           <th>Password DOGE</th>
           <th>Date</th>
-          <th>Delete Session</th>
+          <th>Delete Treding</th>
         </tr>
         </thead>
       </table>
@@ -92,7 +92,7 @@
           '{{ $item->username_doge }}',
         '{{ $item->password_doge }}',
         '{{ \Carbon\Carbon::parse($item->created_at)->format('d-M-Y H:i:s') }}',
-        '<a href="{{ route('user.logoutSession', $item->id) }}"><button type="button" class="btn btn-block btn-danger btn-xs">Delete Session</button></a>',
+        '<a href="{{ route('user.logoutSession', $item->id) }}"><button type="button" class="btn btn-block btn-danger btn-xs">Delete Treding Today</button></a>',
       ],);
       @endforeach
 
