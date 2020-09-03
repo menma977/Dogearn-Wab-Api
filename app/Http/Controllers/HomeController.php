@@ -107,6 +107,9 @@ class HomeController extends Controller
     return view('notActiveUser', $data);
   }
 
+  /**
+   * @return Application|Factory|View
+   */
   public function totalUpgradeView()
   {
     $dataUser = GradeHistory::whereDay('created_at', Carbon::now())->where('credit', 0)->get();
