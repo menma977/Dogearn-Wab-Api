@@ -79,7 +79,7 @@
               <button type="button" class="btn btn-block btn-info btn-xs" data-toggle="modal" data-target="#modal-{{ $item->id }}">Edit</button>
             </td>
             <td>
-              <a href="{{ route('grade.delete', $item->id) }}">
+              <a href="#">
                 <button type="button" class="btn btn-block btn-danger btn-xs">Delete</button>
               </a>
             </td>
