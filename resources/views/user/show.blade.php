@@ -234,9 +234,9 @@
                     <tr>
                       <th>Date</th>
                       <th style="width: 20px">Currency</th>
+                      <th>Value</th>
                       <th>Address</th>
                       <th>Hash</th>
-                      <th>Value</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -250,8 +250,8 @@
                     <tr>
                       <th>Date</th>
                       <th style="width: 20px">Currency</th>
-                      <th>Address</th>
                       <th>Value</th>
+                      <th>Address</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -269,9 +269,9 @@
                       <th>Completed</th>
                       <th>Requested</th>
                       <th style="width: 20px">Currency</th>
+                      <th>Value</th>
                       <th>Address</th>
                       <th>Hash</th>
-                      <th>Value</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -286,8 +286,8 @@
                       <th>Completed</th>
                       <th>Requested</th>
                       <th style="width: 20px">Currency</th>
-                      <th>Address</th>
                       <th>Value</th>
+                      <th>Address</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -479,9 +479,9 @@
           tableDepositExternal.row.add([
             date,
             currency,
+            value,
             address,
             hash,
-            value
           ]).draw();
         }
 
@@ -496,8 +496,8 @@
           tableDepositInternal.row.add([
             date,
             currency,
+            value,
             address,
-            value
           ]).draw();
         }
       }).catch(error => {
@@ -542,9 +542,9 @@
             completed,
             requested,
             currency,
+            value,
             address,
             hash,
-            value
           ]).draw();
         }
 
@@ -561,8 +561,8 @@
             completed,
             requested,
             currency,
+            value,
             address,
-            value
           ]).draw();
         }
       }).catch(error => {

@@ -9,12 +9,10 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <title>DOGEARN</title>
-  <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
+  <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}" type="image/x-icon">
+  <meta content='{{ asset('images/favicon.ico') }}' property='og:image'/>
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Favicon icon -->
-  <link rel="shortcut icon" href="{{ asset('dist/img/logo.jpg') }}" type="image/x-icon">
-
   <!-- Font Awesome -->
   <link rel="stylesheet" href="{{ asset('plugins/fontawesome-free/css/all.min.css') }}">
   <!-- Ionicons -->
@@ -32,12 +30,15 @@
     .forceWight {
         width: 100% !important;
     }
+
     .select2-selection__rendered {
         line-height: 31px !important;
     }
+
     .select2-container .select2-selection--single {
         height: 35px !important;
     }
+
     .select2-selection__arrow {
         height: 34px !important;
     }

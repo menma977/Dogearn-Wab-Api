@@ -83,7 +83,7 @@ class GradeHistoryController extends Controller
         }
 
         $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
-        if ($getGradeSponsorSum >= 0 && $sponsor->role == 2 && $sponsor->level >= 0 && $sponsor->level >= $grade->id) {
+        if ($getGradeSponsorSum > 0 && $sponsor->role == 2 && $sponsor->level > 0 && $sponsor->level >= $grade->id) {
           $totalValue -= $grade->price * $level->find($levels)->percent / 100;
           $dataList = [
             'user' => $sponsor->wallet,
@@ -194,7 +194,7 @@ class GradeHistoryController extends Controller
               $withdrawQueue->send_to = $sponsor->id;
 
               $getGradeSponsorSum = GradeHistory::where('user_id', $sponsor->id)->sum('debit') - GradeHistory::where('user_id', $sponsor->id)->sum('credit');
-              if ($getGradeSponsorSum >= 0 && $sponsor->role == 2 && $sponsor->level >= 0 && $sponsor->level >= $user->level) {
+              if ($getGradeSponsorSum > 0 && $sponsor->role == 2 && $sponsor->level > 0 && $sponsor->level >= $user->level) {
                 $withdrawQueue->send_value = $getGradeById->price * $level->find($levels)->percent / 100;
                 $totalValue -= $withdrawQueue->send_value;
                 $withdrawQueue->total = $totalValue;
