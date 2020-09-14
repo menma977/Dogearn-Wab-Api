@@ -56,7 +56,7 @@
         <div class="icon">
           <i class="fas fa-street-view"></i>
         </div>
-        <a href="{{ route('onlineUserView', [$dateFrom, $dateNow]) }}" class="small-box-footer">
+        <a href="{{ route('onlineUserView') }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
@@ -71,7 +71,7 @@
           <i class="fas fa-user-plus"></i>
 
         </div>
-        <a href="{{ route('newUserView', [$dateFrom, $dateNow]) }}" class="small-box-footer">
+        <a href="{{ route('newUserView', [$dateFrom->format('Y-m-d'), $dateNow->format('Y-m-d')]) }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
@@ -85,7 +85,7 @@
         <div class="icon">
           <i class="fas fa-trophy"></i>
         </div>
-        <a href="{{ route('totalUpgradeView', [$dateFrom, $dateNow]) }}" class="small-box-footer">
+        <a href="{{ route('totalUpgradeView', [$dateFrom->format('Y-m-d'), $dateNow->format('Y-m-d')]) }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
@@ -230,8 +230,8 @@
 
     async function newUser() {
       let url = "{{ route('newUser', ["%date1%", "%date2%"]) }}";
-      url = url.replace('%date1%', "{{$dateFrom}}");
-      url = url.replace('%date2%', "{{$dateNow}}");
+      url = url.replace('%date1%', "{{$dateFrom->format('Y-m-d')}}");
+      url = url.replace('%date2%', "{{$dateNow->format('Y-m-d')}}");
       return await fetch(url, {
         method: 'GET',
         headers: new Headers({
@@ -245,8 +245,8 @@
 
     async function totalUpgrade() {
       let url = "{{ route('totalUpgrade', ["%date1%", "%date2%"]) }}";
-      url = url.replace('%date1%', "{{$dateFrom}}");
-      url = url.replace('%date2%', "{{$dateNow}}");
+      url = url.replace('%date1%', "{{$dateFrom->format('Y-m-d')}}");
+      url = url.replace('%date2%', "{{$dateNow->format('Y-m-d')}}");
       return await fetch(url, {
         method: 'GET',
         headers: new Headers({
