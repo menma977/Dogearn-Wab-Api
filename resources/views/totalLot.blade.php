@@ -32,7 +32,11 @@
         @foreach($data as $item)
           <tr>
             <td>{{ $loop->index + 1 }}.</td>
-            <td>{{ $item->user->email }}</td>
+            <td>
+              <a href="{{ route('user.show', $item->user->id) }}" class="btn btn-block btn-outline-success btn-xs">
+                {{ $item->user->email }}
+              </a>
+            </td>
             <td>{{ number_format($item->debit / 100000000, 8, '.', '') }} DOGE</td>
             <td>{{ $item->upgrade_level }}</td>
             <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d-M-Y H:i:s') }}</td>
