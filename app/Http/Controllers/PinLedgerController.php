@@ -33,7 +33,7 @@ class PinLedgerController extends Controller
   {
     $users = User::all();
 
-    $pinLedgers = PinLedger::orderBy('id', 'desc')->take(1000)->get();
+    $pinLedgers = PinLedger::orderBy('id', 'desc')->take(500)->cursor();
     $pinLedgers->map(function ($item) {
       $item->email = User::find($item->user_id)->email;
     });
