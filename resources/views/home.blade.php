@@ -14,6 +14,24 @@
 @endsection
 
 @section('content')
+  <form action="{{ route('find') }}" method="post">
+    @csrf
+    <div class="form-group">
+      <label>Date range:</label>
+      <div class="input-group">
+        <div class="input-group-prepend">
+          <div class="input-group-text">
+            <i class="far fa-calendar-alt"></i>
+          </div>
+        </div>
+        <input type="text" class="form-control float-right" id="reservation" name="dateFrom" value="{{ $dateFrom->format('m/d/Y')?: '' }}">
+        <input type="text" class="form-control float-right" id="reservation2" name="dateNow" value="{{ $dateNow->format('m/d/Y')?: '' }}">
+        <div class="input-group-append">
+          <button type="submit" class="btn btn-info">Find</button>
+        </div>
+      </div>
+    </div>
+  </form>
   <div class="row">
     <div class="col-md-3">
       <div class="small-box bg-primary">
@@ -38,7 +56,7 @@
         <div class="icon">
           <i class="fas fa-street-view"></i>
         </div>
-        <a href="{{ route('onlineUserView') }}" class="small-box-footer">
+        <a href="{{ route('onlineUserView', [$dateFrom, $dateNow]) }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
@@ -53,7 +71,7 @@
           <i class="fas fa-user-plus"></i>
 
         </div>
-        <a href="{{ route('newUserView') }}" class="small-box-footer">
+        <a href="{{ route('newUserView', [$dateFrom, $dateNow]) }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
@@ -67,7 +85,7 @@
         <div class="icon">
           <i class="fas fa-trophy"></i>
         </div>
-        <a href="{{ route('totalUpgradeView') }}" class="small-box-footer">
+        <a href="{{ route('totalUpgradeView', [$dateFrom, $dateNow]) }}" class="small-box-footer">
           More info <i class="fas fa-arrow-circle-right"></i>
         </a>
       </div>
@@ -120,15 +138,47 @@
   </div>
 @endsection
 
+@section('addCss')
+  <!-- daterange picker -->
+  <link rel="stylesheet" href="{{ asset('plugins/daterangepicker/daterangepicker.css') }}">
+  <!-- Toastr -->
+  <link rel="stylesheet" href="{{ asset('plugins/toastr/toastr.min.css') }}">
+@endsection
+
 @section('addJs')
   <!-- ChartJS -->
   <script src="{{ asset('plugins/chart.js/Chart.min.js') }}"></script>
+
+  <!-- InputMask -->
+  <script src="{{ asset('plugins/moment/moment.min.js') }}"></script>
+  <script src="{{ asset('plugins/inputmask/min/jquery.inputmask.bundle.min.js') }}"></script>
+  <!-- date-range-picker -->
+  <script src="{{ asset('plugins/daterangepicker/daterangepicker.js') }}"></script>
+  <!-- Toastr -->
+  <script src="{{ asset('plugins/toastr/toastr.min.js') }}"></script>
 
   <script>
     let barChartLot;
     let barChart;
 
     $(async function () {
+      @error("dateFrom")
+      toastr.error("{{ $message }}");
+      @enderror
+      @error("dateNow")
+      toastr.error("{{ $message }}");
+      @enderror
+
+      //Date range picker
+      $('#reservation').daterangepicker({
+        singleDatePicker: true,
+        timePicker: false,
+      })
+      $('#reservation2').daterangepicker({
+        singleDatePicker: true,
+        timePicker: false,
+      })
+
       setGraphic();
       setGraphicLot();
       $('#totalUserText').html(await totalUser());
@@ -179,7 +229,10 @@
     }
 
     async function newUser() {
-      return await fetch("{{ route('newUser') }}", {
+      let url = "{{ route('newUser', ["%date1%", "%date2%"]) }}";
+      url = url.replace('%date1%', "{{$dateFrom}}");
+      url = url.replace('%date2%', "{{$dateNow}}");
+      return await fetch(url, {
         method: 'GET',
         headers: new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -191,7 +244,10 @@
     }
 
     async function totalUpgrade() {
-      return await fetch("{{ route('totalUpgrade') }}", {
+      let url = "{{ route('totalUpgrade', ["%date1%", "%date2%"]) }}";
+      url = url.replace('%date1%', "{{$dateFrom}}");
+      url = url.replace('%date2%', "{{$dateNow}}");
+      return await fetch(url, {
         method: 'GET',
         headers: new Headers({
           'Content-Type': 'application/x-www-form-urlencoded',
