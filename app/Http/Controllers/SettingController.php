@@ -81,6 +81,26 @@ class SettingController extends Controller
    * @return RedirectResponse|void
    * @throws ValidationException
    */
+  public function adminFee(Request $request)
+  {
+    $this->validate($request, [
+      'admin_fee' => 'required|string',
+    ]);
+
+    $setting = Setting::find(1);
+    $setting->admin_fee = $request->admin_fee;
+    $setting->save();
+
+    return redirect()->back();
+  }
+
+  /**
+   * Store a newly created resource in storage.
+   *
+   * @param Request $request
+   * @return RedirectResponse|void
+   * @throws ValidationException
+   */
   public function app(Request $request)
   {
     $this->validate($request, [

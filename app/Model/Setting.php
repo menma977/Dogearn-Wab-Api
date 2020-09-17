@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property integer type_withdraw
  * @property integer wallet_it
  * @property double fee
+ * @property double admin_fee
  * @property integer app_version
  * @property string dollar
  * @property integer lot
@@ -27,6 +28,7 @@ class Setting extends Model
     'type_withdraw',
     'wallet_it',
     'fee',
+    'admin_fee',
     'app_version',
     'dollar',
     'lot',

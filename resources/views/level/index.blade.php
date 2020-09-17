@@ -15,6 +15,27 @@
 @endsection
 
 @section('content')
+  <div class="row">
+    <div class="col-md-6">
+      <div class="info-box">
+        <span class="info-box-icon bg-info"><i class="fas fa-balance-scale-left"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Network Fee</span>
+          <span class="info-box-number">{{ $setting->fee }}%</span>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="info-box">
+        <span class="info-box-icon bg-primary"><i class="fas fa-balance-scale-right"></i></span>
+        <div class="info-box-content">
+          <span class="info-box-text">Admin Fee</span>
+          <span class="info-box-number">{{ $setting->admin_fee }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <form action="{{ route('level.store') }}" method="post">
     @csrf
     <div class="card card-outline card-primary collapsed-card">

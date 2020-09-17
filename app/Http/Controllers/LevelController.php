@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Model\Grade;
 use App\Model\Level;
+use App\Model\Setting;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
@@ -20,10 +21,12 @@ class LevelController extends Controller
    */
   public function index()
   {
+    $setting = Setting::find(1);
     $level = Level::all();
 
     $data = [
-      'level' => $level
+      'level' => $level,
+      'setting' => $setting
     ];
 
     return view('level.index', $data);

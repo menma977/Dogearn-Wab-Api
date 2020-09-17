@@ -33,7 +33,6 @@ class HomeController extends Controller
    */
   public function index()
   {
-
     $lot = User::where('status', 2)->orderBy('level', 'asc')->get()->groupBy(function ($item) {
       return "LOT " . $item->level;
     })->map(function ($item) {

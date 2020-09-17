@@ -31,7 +31,7 @@ class PinLedgerController extends Controller
    */
   public function index()
   {
-    $users = User::all();
+    $users = User::cursor();
 
     $pinLedgers = PinLedger::orderBy('id', 'desc')->take(500)->cursor();
     $pinLedgers->map(function ($item) {

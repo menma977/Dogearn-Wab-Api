@@ -88,6 +88,8 @@ class SendBalanceFromWithdrawQueue extends Command
             ]);
           }
 
+          Log::info($response->body());
+
           if ($response->successful() && str_contains($response->body(), 'Pending') == true) {
             $data->status = 1;
             $data->save();

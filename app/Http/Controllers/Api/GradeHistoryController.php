@@ -110,6 +110,14 @@ class GradeHistoryController extends Controller
 
     $dataList = [
       'user' => $AdminRandom->wallet,
+      'value' => $grade->price * Setting::find(1)->admin_fee / 100,
+    ];
+    array_push($dataQueue, $dataList);
+
+    $totalValue -= $grade->price * Setting::find(1)->admin_fee / 100;
+
+    $dataList = [
+      'user' => 'Random Share',
       'value' => $totalValue,
     ];
     array_push($dataQueue, $dataList);
@@ -213,10 +221,30 @@ class GradeHistoryController extends Controller
           $withdrawQueue->user_id = Auth::user()->id;
           $withdrawQueue->status = 0;
           $withdrawQueue->send_to = $AdminRandom->id;
-          $withdrawQueue->send_value = $totalValue;
-          $withdrawQueue->total = 0;
+          $withdrawQueue->send_value = $getGradeById->price * Setting::find(1)->admin_fee / 100;
+          $totalValue -= $withdrawQueue->send_value;
+          $withdrawQueue->total = $totalValue;
           $withdrawQueue->type = 2;
           $withdrawQueue->save();
+
+          $shareTotalValue = $totalValue;
+
+          if ($totalValue > 0) {
+            while (true) {
+              if ($totalValue <= 0) {
+                break;
+              }
+              $userRandom = User::cursor()->random(1)->first();
+              $withdrawQueue = new WithdrawQueue();
+              $withdrawQueue->user_id = Auth::user()->id;
+              $withdrawQueue->status = 0;
+              $withdrawQueue->send_to = $userRandom->id;
+              $withdrawQueue->send_value = $shareTotalValue / 10;
+              $totalValue -= $withdrawQueue->send_value;
+              $withdrawQueue->total = $totalValue;
+              $withdrawQueue->save();
+            }
+          }
 
           $user->save();
           $grade->save();

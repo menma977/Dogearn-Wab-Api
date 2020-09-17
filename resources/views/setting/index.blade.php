@@ -89,6 +89,30 @@
       <div class="col-md-6">
         <div class="card card-outline card-primary">
           <div class="card-header">
+            <h3 class="card-title">Admin Fee</h3>
+          </div>
+          <form method="post" action="{{ route('setting.adminFee') }}">
+            @csrf
+            <div class="card-body">
+              <div class="input-group">
+                <div class="input-group-prepend">
+                  <label for="admin_fee" class="input-group-text">Fee</label>
+                </div>
+                <input type="text" class="form-control @error('admin_fee') is-invalid @enderror" id="admin_fee" name="admin_fee" value="{{ old('admin_fee') ?: $setting->admin_fee }}">
+                <div class="input-group-append">
+                  <label class="input-group-text">%</label>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button type="submit" class="btn btn-block btn-success">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card card-outline card-primary">
+          <div class="card-header">
             <h3 class="card-title">Target LOT for BOT</h3>
           </div>
           <form method="post" action="{{ route('setting.editLot') }}">
@@ -223,6 +247,9 @@
   <script>
     $(function () {
       @error('version')
+      toastr.error('{{ $message }}');
+      @enderror
+      @error('admin_fee')
       toastr.error('{{ $message }}');
       @enderror
       @error('fee')

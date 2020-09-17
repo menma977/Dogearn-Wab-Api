@@ -34,16 +34,30 @@ class Kernel extends ConsoleKernel
 
     $schedule->command('minute:DeleteUserIfNotActive')->daily()->withoutOverlapping();
 
-    //cron job
-
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
+    $schedule->command('minute:SaveUserShare')->everyMinute()->withoutOverlapping();
     $schedule->command('minute:sendBalanceFromWithdrawQueue')->everyMinute()->withoutOverlapping();
 
 //    $schedule->command('minute:sendDataToOtherDomain1')->everyMinute()->withoutOverlapping();

@@ -211,6 +211,18 @@
                                 {!! $messages !!}
                               </span>
                             </p>
+                            @if($link)
+                              <p style="line-height: 1.5; word-break: break-word; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 16px; mso-line-height-alt: 24px; margin: 0;">
+                              <span style="font-size: 16px; color: #2a272b;">
+                                <a href="{{ $link ?: '' }}">
+                                  <button>
+                                    LINK To Continue
+                                  </button>
+                                </a>
+                              </span>
+                              </p>
+                            @endif
+                            <br/>
                             <p style="line-height: 1.5; word-break: break-word; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 16px; mso-line-height-alt: 24px; margin: 0;">
                               <span style="font-size: 16px; color: #2a272b;">
                                 {{ $link ?: '' }}

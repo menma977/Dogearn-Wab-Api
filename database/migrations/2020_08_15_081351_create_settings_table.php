@@ -19,6 +19,7 @@ class CreateSettingsTable extends Migration
       $table->integer('type_withdraw');
       $table->text('wallet_it');
       $table->double('fee');
+      $table->double('admin_fee');
       $table->integer('app_version');
       $table->text('dollar')->nullable();
       $table->integer('lot')->default(1);

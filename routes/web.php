@@ -90,6 +90,7 @@ Route::middleware('auth')->group(static function () {
     Route::get('/', 'SettingController@index')->name('index');
     Route::post('/update/wallet/it', 'SettingController@updateIt')->name('updateIt');
     Route::post('/update/fee', 'SettingController@fee')->name('fee');
+    Route::post('/update/fee/admin', 'SettingController@adminFee')->name('adminFee');
     Route::post('/update/app', 'SettingController@app')->name('app');
     Route::get('/shot/down/{status}', 'SettingController@shotDown')->name('shotDown');
     Route::post('/edit/lot', 'SettingController@editLot')->name('editLot');
