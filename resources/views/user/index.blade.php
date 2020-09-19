@@ -15,31 +15,50 @@
 @endsection
 
 @section('content')
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">List Transaction</h3>
+  <div class="card card-outline card-primary">
+    <div class="card-body">
+      <form action="{{ route('user.find') }}" method="post">
+        @csrf
+        <div class="input-group mb-3">
+          <input type="text" class="form-control @error('username') is-invalid @enderror" name="username" placeholder="Email/Phone/Wallet" value="{{ old('username') }}">
+          <div class="input-group-append">
+            <button type="submit" class="btn btn-success">Find</button>
+          </div>
+        </div>
+      </form>
     </div>
-    <div class="card-body p-0 table-responsive">
-      <table class="table table-sm" id="data" style="width: 100%">
-        <thead class="text-center">
-        <tr>
-          <th style="width: 20px">#</th>
-          <th>Detail</th>
-          <th>Type</th>
-          <th>Email</th>
-          <th>Phone</th>
-          <th>Password</th>
-          <th>Wallet</th>
-          <th>LOT</th>
-          <th style="width: 100px">Suspend</th>
-          <th style="width: 150px">Status</th>
-          <th>Username DOGE</th>
-          <th>Password DOGE</th>
-          <th>Date</th>
-          <th>Delete Treding</th>
-        </tr>
-        </thead>
-      </table>
+  </div>
+
+  <div class="card bg-primary">
+    <div class="card-header">
+      <h3 class="card-title mb-2">List Transaction</h3>
+      <div class="card-tools">
+        {{ $users->links() }}
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive pl-2 pr-2">
+        <table class="table table-sm" id="data" style="width: 100%">
+          <thead class="text-center">
+          <tr>
+            <th style="width: 20px">#</th>
+            <th>Detail</th>
+            <th>Email</th>
+            <th>Type</th>
+            <th>Password</th>
+            <th>Wallet</th>
+            <th>Phone</th>
+            <th>LOT</th>
+            <th style="width: 100px">Suspend</th>
+            <th style="width: 150px">Status</th>
+            <th>Username DOGE</th>
+            <th>Password DOGE</th>
+            <th>Date</th>
+            <th>Delete Treding</th>
+          </tr>
+          </thead>
+        </table>
+      </div>
     </div>
   </div>
 @endsection
@@ -65,17 +84,21 @@
 
   <script>
     $(function () {
+      @error("error")
+      toastr.error("{{ $message }}");
+      @enderror
+
       const array = [];
 
       @foreach($users as $id => $item)
       array.push([
-        "{{ $loop->index + 1 }}.",
+        "{{ $item->id }}.",
         '<a href="{{ route('user.show', $item->id) }}"><button type="button" class="btn btn-block btn-success btn-xs">Detail</button></a>',
-        '{{ $item->role === 1 ? "Admin" : "User" }}',
         '{{ $item->email }}',
-        '{{ $item->phone }}',
+        '{{ $item->role === 1 ? "Admin" : "User" }}',
         '{{ $item->password_junk }}',
         '{{ $item->wallet }}',
+        '{{ $item->phone }}',
         '{{ $item->level }}',
         @if($item->suspend === 0)
           '<a href="{{ route('user.suspend', [$item->id, 1]) }}"><button type="button" class="btn btn-block btn-danger btn-xs">Suspend</button></a>',
@@ -97,7 +120,7 @@
       @endforeach
 
       $('#data').DataTable({
-        "paging": true,
+        "paging": false,
         "lengthChange": true,
         "searching": true,
         "ordering": true,

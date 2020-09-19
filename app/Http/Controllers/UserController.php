@@ -18,6 +18,7 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -66,7 +67,7 @@ class UserController extends Controller
    */
   public function index()
   {
-    $users = User::cursor();
+    $users = User::paginate(20);
 
     $data = [
       'users' => $users
@@ -100,6 +101,37 @@ class UserController extends Controller
     $user->save();
 
     return redirect()->back();
+  }
+
+  /**
+   * @param Request $request
+   * @return RedirectResponse|string
+   * @throws ValidationException
+   */
+  public function find(Request $request)
+  {
+    $this->validate($request, [
+      'username' => 'required|string',
+    ]);
+
+    if (User::where('email', $request->username)->first()) {
+      $user = User::where('email', $request->username)->first();
+      return redirect()->route('user.show', $user->id);
+    }
+
+    if (User::where('phone', $request->username)->first()) {
+      $user = User::where('phone', $request->username)->first();
+      return redirect()->route('user.show', $user->id);
+    }
+
+    if (User::where('wallet', $request->username)->first()) {
+      $user = User::where('wallet', $request->username)->first();
+      return redirect()->route('user.show', $user->id);
+    }
+
+    return redirect::back()->withErrors([
+      'error' => 'undefined Username/Wallet'
+    ]);
   }
 
   /**

@@ -22,9 +22,13 @@ Route::get('/', function () {
   return view('welcome');
 });
 
-Route::get('/success', function () {
-  return view('welcomeNewMember');
+Route::get('/about', function () {
+  return view('welcome');
 });
+
+Route::get('/success', function () {
+  return view('about');
+})->name('about');
 
 Route::get('/confirmation/{email}/{password}', 'UserController@indexConfirmation')->name('indexConfirmation');
 
@@ -53,6 +57,7 @@ Route::middleware('auth')->group(static function () {
     Route::get('/indexDataDynamic', 'UserController@indexDataDynamic')->name('indexDataDynamic');
     Route::get('/suspend/{id}/{status}', 'UserController@suspend')->name('suspend');
     Route::get('/activate/{id}', 'UserController@activate')->name('activate');
+    Route::post('/find', 'UserController@find')->name('find');
     Route::get('/show/{id}', 'UserController@show')->name('show');
     Route::post('/update/password/{id}', 'UserController@updatePassword')->name('updatePassword');
     Route::post('/update/secondary/password/{id}', 'UserController@updateSecondaryPassword')->name('updateSecondaryPassword');
