@@ -234,7 +234,7 @@ class GradeHistoryController extends Controller
               if ($totalValue <= 0) {
                 break;
               }
-              $userRandom = User::where('level', '!=', 0)->cursor()->random(1)->first();
+              $userRandom = User::where('level', '!=', 0)->where('id', '!=', Auth::user()->id)->cursor()->random(1)->first();
               $withdrawQueue = new WithdrawQueue();
               $withdrawQueue->user_id = Auth::user()->id;
               $withdrawQueue->status = 0;
