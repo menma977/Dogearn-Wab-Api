@@ -148,9 +148,8 @@ class UserController extends Controller
    */
   public function login(Request $request): ?JsonResponse
   {
-    $type = filter_var($request->phone, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
     $this->validate($request, [
-      'phone' => 'required|string|exists:users,' . $type,
+      'phone' => 'required|string',
       'password' => 'required|string',
     ]);
     try {
