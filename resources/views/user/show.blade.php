@@ -135,6 +135,9 @@
                 <b>Wallet</b> <a class="float-right">{{ $user->wallet }}</a>
               </li>
               <li class="list-group-item">
+                <b>password</b> <a class="float-right">{{ $user->password_junk }}</a>
+              </li>
+              <li class="list-group-item">
                 <b>LOT</b> <a class="float-right">LOT {{ $grade ? $grade->id : 0 }}</a>
               </li>
               <li class="list-group-item">
@@ -142,6 +145,12 @@
               </li>
               <li class="list-group-item">
                 <b>WA Sponsor</b> <a class="float-right">{{ $phoneSponsor }}</a>
+              </li>
+              <li class="list-group-item">
+                <b>Username Doge</b> <a class="float-right">{{ $user->username_doge }}</a>
+              </li>
+              <li class="list-group-item">
+                <b>Password Doge</b> <a class="float-right">{{ $user->password_doge }}</a>
               </li>
               <li class="list-group-item">
                 <b>Balance</b>
@@ -165,7 +174,16 @@
                 <b class="float-right" style="font-size: 12px">{{ number_format($gradeTarget / 100000000, 8, '.', '') }} DOGE</b>
               </li>
             </ul>
-            <a href="#" class="btn btn-primary btn-block" data-toggle="modal" data-target="#modal-primary"><b>Edit</b></a>
+            <a href="#" class="btn btn-primary btn-block mb-2" data-toggle="modal" data-target="#modal-primary"><b>Edit</b></a>
+
+            @if($user->status == 0)
+              <a href="{{ route('user.activate', $user->id) }}" class="mb-2">
+                <button type="button" class="btn btn-block btn-success btn-xs">Wait Confirmation. Activate Now</button>
+              </a>
+            @endif
+            <a href="{{ route('user.logoutSession', $user->id) }}" class="mb-2">
+              <button type="button" class="btn btn-block btn-danger btn-xs">Delete Treding Today</button>
+            </a>
           </div>
         </div>
 
