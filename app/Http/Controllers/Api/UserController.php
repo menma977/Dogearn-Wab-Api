@@ -235,7 +235,7 @@ class UserController extends Controller
     $type = filter_var($request->sponsor, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
     $this->validate($request, [
       'sponsor' => 'required|string|exists:users,' . $type,
-      'email' => 'required|string|unique:users',
+      'email' => 'required|string|email|unique:users',
       'phone' => 'required|numeric|unique:users',
       'password' => 'required|string|min:6|confirmed',
       'transaction_password' => 'required|numeric|digits:4',
