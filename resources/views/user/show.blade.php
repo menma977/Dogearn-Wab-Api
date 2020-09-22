@@ -40,11 +40,11 @@
                     <div class="card-body">
                       <div class="form-group">
                         <label for="password">New Password</label>
-                        <input type="number" class="form-control @error('password') is-invalid @enderror" id="password" name="password" value="{{ old("password'") }}" placeholder="New Password">
+                        <input type="text" class="form-control @error('password') is-invalid @enderror" id="password" name="password" value="{{ old("password'") }}" placeholder="New Password">
                       </div>
                       <div class="form-group">
                         <label for="password_confirmation">Retype New Password</label>
-                        <input type="number" class="form-control @error('password_confirmation') is-invalid @enderror" id="password_confirmation" name="password_confirmation"
+                        <input type="text" class="form-control @error('password_confirmation') is-invalid @enderror" id="password_confirmation" name="password_confirmation"
                                value="{{ old("password_confirmation'") }}"
                                placeholder="Retype phone number">
                       </div>
