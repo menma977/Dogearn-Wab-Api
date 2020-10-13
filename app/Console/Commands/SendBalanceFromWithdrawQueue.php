@@ -47,6 +47,7 @@ class SendBalanceFromWithdrawQueue extends Command
   public function handle()
   {
     try {
+      sleep(15);
       $data = WithdrawQueue::where('status', 0)->orderBy('id', 'asc')->get()->first();
       if ($data) {
         $user = User::find($data->user_id);
