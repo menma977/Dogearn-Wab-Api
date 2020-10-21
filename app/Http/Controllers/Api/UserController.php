@@ -153,7 +153,7 @@ class UserController extends Controller
       'password' => 'required|string',
     ]);
     try {
-      if (Auth::attempt([$type => request('phone'), 'password' => request('password')])) {
+      if (Auth::attempt(['phone' => request('phone'), 'password' => request('password')])) {
         foreach (Auth::user()->tokens as $key => $value) {
           $value->revoke();
         }
