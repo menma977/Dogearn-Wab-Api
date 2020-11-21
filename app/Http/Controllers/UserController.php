@@ -18,6 +18,8 @@ use Illuminate\Routing\Redirector;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -284,6 +286,30 @@ class UserController extends Controller
   {
     $data = User::find($id);
     Treding::where('user_id', $data->id)->whereDay('created_at', Carbon::now())->delete();
+
+    return redirect()->back();
+  }
+
+  /**
+   * @param $id
+   * @return RedirectResponse
+   */
+  public function resendEmail($id)
+  {
+    $user = User::find($id);
+    $dataEmail = [
+      'subject' => 'Your registration process has been completed',
+      'messages' => 'Hallo ' . $user->email . ' <br>you been registered correctly, but there is a problem in the registration section. Please wait up to 30 minutes for automatic re-registration <br> with password : ' . $user->password_junk . ' <br> secondary password : ' . $user->transaction_password . '<br> <br> Link to continue registration',
+      'link' => url('/confirmation/' . Crypt::encryptString($user->email) . '/' . Crypt::encryptString($user->password))
+    ];
+    try {
+      Mail::send('mail.reRegistration', $dataEmail, function ($message) use ($user) {
+        $message->to($user->email, 'Registration')->subject('Your registration process has been completed');
+        $message->from('admin@dogearn.com', 'DOGEARN');
+      });
+    } catch (Exception $e) {
+      Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
+    }
 
     return redirect()->back();
   }

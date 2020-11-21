@@ -184,6 +184,10 @@
             <a href="{{ route('user.logoutSession', $user->id) }}" class="mb-2">
               <button type="button" class="btn btn-block btn-danger btn-xs">Delete Treding Today</button>
             </a>
+
+            <a href="{{ route('user.email', $user->id) }}" class="mb-2">
+              <button type="button" class="btn btn-block btn-primary btn-xs">Resend Email</button>
+            </a>
           </div>
         </div>
 

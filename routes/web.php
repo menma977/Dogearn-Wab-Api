@@ -14,10 +14,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Authorization');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE');
-
 Route::get('/', function () {
   return view('welcome');
 });
@@ -39,6 +35,7 @@ Auth::routes(['register' => false]);
 Route::middleware('auth')->group(static function () {
   Route::get('/home', 'HomeController@index')->name('home');
   Route::post('/find', 'HomeController@find')->name('find');
+  Route::get('/export/vcard', 'HomeController@exportVCard')->name('vcard');
 
   Route::get('/total/user/view', 'HomeController@totalUserView')->name('totalUserView');
   Route::get('/online/user/view', 'HomeController@onlineUserView')->name('onlineUserView');
@@ -65,6 +62,7 @@ Route::middleware('auth')->group(static function () {
     Route::get('/lot/{id}', 'UserController@lotList')->name('lotList');
     Route::get('/pin/{id}', 'UserController@pinList')->name('pinList');
     Route::get('/delete/session/{id}', 'UserController@logoutSession')->name('logoutSession');
+    Route::get('/resend/email/{id}', 'UserController@resendEmail')->name('email');
   });
 
   Route::group(['prefix' => 'pin', 'as' => 'pin.'], static function () {

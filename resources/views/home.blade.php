@@ -14,6 +14,7 @@
 @endsection
 
 @section('content')
+  <a href="{{ route('vcard') }}" class="mb-2 btn btn-sm btn-primary float-right">Export Contact</a>
   <form action="{{ route('find') }}" method="post">
     @csrf
     <div class="form-group">

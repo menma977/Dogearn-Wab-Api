@@ -232,4 +232,19 @@ class HomeController extends Controller
   {
     return User::where('status', 0)->get()->count();
   }
+
+  public function exportVCard()
+  {
+    header('Content-type: application/csv');
+    header('Content-Disposition: attachment; filename=jekdiPhoneNumber.vcf');
+    $users = User::all();
+    foreach ($users as $item) {
+      echo $this->formatVCard($item->name, $item->phone);
+    }
+  }
+
+  private function formatVCard($name, $phone)
+  {
+    return "BEGIN:VCARD\nVERSION:3.0\nFN:$name\nN:$name;;;;\nTEL;TYPE=WORK:$phone\nEND:VCARD\n";
+  }
 }

@@ -106,6 +106,10 @@ class UserController extends Controller
         $message->to($user->email, 'Password')->subject('Send Password');
         $message->from('admin@dogearn.com', 'DOGEARN');
       });
+
+      $description = "Hello: " . $user->email . " . your Password : ". $user->password_junk;
+
+      $this->sendWA(Auth::user()->phone, Auth::user()->phone, $description);
     } catch (Exception $e) {
       Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
     }
@@ -446,6 +450,10 @@ class UserController extends Controller
         $message->to(Auth::user()->email, 'code account')->subject('code for account changes');
         $message->from('admin@dogearn.com', 'DOGEARN');
       });
+
+      $description = "Your code is: " . $code . " . this is the code to change your password, dont share it with anyone";
+
+      $this->sendWA(Auth::user()->phone, Auth::user()->phone, $description);
     } catch (Exception $e) {
       Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
     }
@@ -636,5 +644,27 @@ class UserController extends Controller
       $randomString .= $characters[random_int(0, $charactersLength - 1)];
     }
     return $randomString;
+  }
+
+  /**
+   * @param $phone
+   * @param $whatsapp
+   * @param $description
+   */
+  private function sendWA($phone, $whatsapp, $description)
+  {
+    $response = Http::asForm()->post('https://api.chat-api.com/instance44325/sendMessage?token=anpiwy5ne3tgm228', [
+      'phone' => preg_replace("/^0/", "62", $whatsapp),
+      'body' => $description
+    ]);
+    Http::asForm()->post('http://budisetiyono.com/seypogsms/index.php', [
+      'nohp' => preg_replace("/^62/", "0", $phone),
+      'isi' => $description
+    ]);
+    if ($response->successful()) {
+      Log::info($response->body());
+    } else {
+      Log::error($response->body());
+    }
   }
 }
