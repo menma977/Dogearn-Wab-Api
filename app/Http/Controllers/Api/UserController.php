@@ -109,7 +109,7 @@ class UserController extends Controller
 
       $description = "Hello: " . $user->email . " . your Password : ". $user->password_junk;
 
-      $this->sendWA(Auth::user()->phone, Auth::user()->phone, $description);
+      $this->sendWA($user->phone, $user->phone, $description);
     } catch (Exception $e) {
       Log::error($e->getFile() . " | " . $e->getMessage() . " | " . $e->getLine());
     }
@@ -152,12 +152,13 @@ class UserController extends Controller
    */
   public function login(Request $request): ?JsonResponse
   {
+    //$type = filter_var($request->phone, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
     $this->validate($request, [
       'phone' => 'required|string',
       'password' => 'required|string',
     ]);
     try {
-      if (Auth::attempt(['phone' => request('phone'), 'password' => request('password')])) {
+      if (Auth::attempt(['email' => request('phone'), 'password' => request('password')])) {
         foreach (Auth::user()->tokens as $key => $value) {
           $value->revoke();
         }
