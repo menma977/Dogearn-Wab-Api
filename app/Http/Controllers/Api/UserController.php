@@ -654,14 +654,14 @@ class UserController extends Controller
    */
   private function sendWA($phone, $whatsapp, $description)
   {
-    $response = Http::asForm()->post('https://api.chat-api.com/instance44325/sendMessage?token=anpiwy5ne3tgm228', [
+    $response = Http::asForm()->post('https://eu48.chat-api.com/instance44325/sendMessage?token=anpiwy5ne3tgm228', [
       'phone' => preg_replace("/^0/", "62", $whatsapp),
       'body' => $description
     ]);
-    Http::asForm()->post('http://budisetiyono.com/seypogsms/index.php', [
-      'nohp' => preg_replace("/^62/", "0", $phone),
-      'isi' => $description
-    ]);
+//    Http::asForm()->post('http://budisetiyono.com/seypogsms/index.php', [
+//      'nohp' => preg_replace("/^62/", "0", $phone),
+//      'isi' => $description
+//    ]);
     if ($response->successful()) {
       Log::info($response->body());
     } else {
