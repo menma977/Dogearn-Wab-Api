@@ -73,7 +73,7 @@ class UserController extends Controller
    */
   public function getDataLogin()
   {
-    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDate('created_at', Carbon::now())->count();
+    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->where('created_at', '>=', Carbon::now()->format('d'))->whereMonth('created_at', '>=', Carbon::now()->format('m'))->whereYear('created_at', '>=', Carbon::now()->format('Y'))->count();
 
     $data = [
       'isLogin' => Auth::check(),
@@ -107,7 +107,7 @@ class UserController extends Controller
         $message->from('admin@dogearn.com', 'DOGEARN');
       });
 
-      $description = "Hello: " . $user->email . " . your Password : ". $user->password_junk;
+      $description = "Hello: " . $user->email . " . your Password : " . $user->password_junk;
 
       $this->sendWA($user->phone, $user->phone, $description);
     } catch (Exception $e) {
@@ -405,7 +405,7 @@ class UserController extends Controller
   {
     $grade = Auth::user()->level > 0 ? Grade::find(Auth::user()->level) : null;
     $pin = PinLedger::where('user_id', Auth::user()->id)->sum('debit') - PinLedger::where('user_id', Auth::user()->id)->sum('credit');
-    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->whereDay('created_at', Carbon::now())->count();
+    $isUserWinPlayingBot = Treding::where('user_id', Auth::user()->id)->where('created_at', '>=', Carbon::now()->format('d'))->whereMonth('created_at', '>=', Carbon::now()->format('m'))->whereYear('created_at', '>=', Carbon::now()->format('Y'))->count();
     $onQueue = WithdrawQueue::where('user_id', Auth::user()->id)->where('status', 0)->count();
     $dollar = Setting::find(1)->dollar;
     $lot = Setting::find(1)->lot;
